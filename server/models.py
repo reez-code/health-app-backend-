@@ -36,21 +36,21 @@ class Patient(db.Model, SerializerMixin):
     
     
     
-#     @validates("phone")
-#     def validate_phone(self,key,phone):
-#         if not validators.length(phone, min=10, max=15):
-#             raise ValueError("Phone number must be between 10 and 15 characters")
-#         return phone
+    @validates("phone")
+    def validate_phone(self,key,phone):
+        if not validators.length(phone, min=10, max=15):
+            raise ValueError("Phone number must be between 10 and 15 characters")
+        return phone
         
         
-#     @validates('email')
-#     def validate_email(self, key, address):
-#         if '@' not in address:
-#             raise ValueError("Failed simple email validation")
-#         return address
+    @validates('email')
+    def validate_email(self, key, address):
+        if '@' not in address:
+            raise ValueError("Failed simple email validation")
+        return address
     
-#     def __repr__(self):
-#         return f"<Admin {self.name},{self.gender},{self.age},{self.phone_number},{self.email}>"
+    def __repr__(self):
+        return f"<Admin {self.name},{self.gender},{self.age},{self.phone_number},{self.email}>"
     
     
     
