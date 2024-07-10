@@ -19,9 +19,6 @@ db.init_app(app)
 api = Api(app)
 
 
-@app.route("/")
-def index():
-    return "<h1>HEALTHY APP</h1>"
 
 class Home(Resource):
 
