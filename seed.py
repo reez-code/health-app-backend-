@@ -29,14 +29,14 @@ appointment_reasons = [
     "Second Opinion Consultation"
 ]
 
-admin_roles = [
-    "Routine Checkup", "Follow-up Consultation", "Vaccination", "Prescription Refill",
-    "Blood Test", "X-ray or Imaging", "Physical Therapy Session", "Dental Checkup",
-    "Mental Health Counseling", "Surgical Consultation", "Chronic Disease Management",
-    "Pregnancy Monitoring", "Allergy Testing", "Orthopedic Evaluation", "Hearing Test",
-    "Eye Examination", "Dermatological Evaluation", "Cancer Screening", "Emergency Room Visit",
-    "Second Opinion Consultation"
-]
+# admin_roles = [
+#     "Routine Checkup", "Follow-up Consultation", "Vaccination", "Prescription Refill",
+#     "Blood Test", "X-ray or Imaging", "Physical Therapy Session", "Dental Checkup",
+#     "Mental Health Counseling", "Surgical Consultation", "Chronic Disease Management",
+#     "Pregnancy Monitoring", "Allergy Testing", "Orthopedic Evaluation", "Hearing Test",
+#     "Eye Examination", "Dermatological Evaluation", "Cancer Screening", "Emergency Room Visit",
+#     "Second Opinion Consultation"
+# ]
 
 with app.app_context():
     # This will delete any existing rows
@@ -60,7 +60,7 @@ with app.app_context():
     db.session.add_all(doctors)
     db.session.commit()
 
-    # creating appointments
+    #creating appointments
     print("creating appointments...")
     appointments = []
     for i in range(20):
@@ -73,17 +73,17 @@ with app.app_context():
     db.session.commit()
 
     # creating admins
-    print("creating admins...")
-    admins = []
-    for i in range(5):
-        admin = Admin(
-            name=fake.name(),
-            email=fake.email(),
-            role=rc(admin_roles),
-            phone=fake.phone_number()
-        )
-        admins.append(admin)
-    db.session.add_all(admins)
-    db.session.commit()
+    # print("creating admins...")
+    # admins = []
+    # for i in range(5):
+    #     admin = Admin(
+    #         name=fake.name(),
+    #         email=fake.email(),
+    #         role=rc(admin_roles),
+    #         phone=fake.phone_number()
+    #     )
+    #     admins.append(admin)
+    # db.session.add_all(admins)
+    # db.session.commit()
 
 print("Database seeded successfully.")
