@@ -22,17 +22,17 @@ class Department(db.Model):
     
 
     
-# class Patient(db.Model, SerializerMixin):
-#     __tablename__= "patients"
+class Patient(db.Model, SerializerMixin):
+    __tablename__= "patients"
     
-#     id = db.Column(db.Integer, primary_key=True)
-#     name = db.Column(db.String)
-#     gender = db.Column(db.String)
-#     age = db.Column(db.String)
-#     phone_number = db.Column(db.String)
-#     email = db.Column(db.String)
-#     diagnosis=db.Column(db.String)
-#     # appointment_id=db.Column(db.Integer, db.ForeignKey('appointments.id'))
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    gender = db.Column(db.String)
+    age = db.Column(db.String)
+    phone_number = db.Column(db.String)
+    email = db.Column(db.String)
+    diagnosis=db.Column(db.String)
+    # appointment_id=db.Column(db.Integer, db.ForeignKey('appointments.id'))
     
     
     
