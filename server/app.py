@@ -44,9 +44,30 @@ class Patients(Resource):
             response_dict_list,
             200)
         return response
-        
     
-api.add_resource(Departments, '/departments')
+    def post(self):
+        new_record = Patient(
+            name=request.form['name'],
+            age=request.form['age'],
+            gender=request.form['gender'],
+            phone_number=request.form['phone_number'],
+            diagnosis=request.form['diagnosis'],
+            email=request.form['email']
+        )
+        db.session.add(new_record)
+        db.session.commit()
+        response_dict = new_record.to_dict()
+        
+        response = make_response(
+            response_dict,
+            201)
+        return response
+    
+api.add_resource(Patients, '/patients')
+
+# api.add_resource(PatientByID, '/patients/<int:id>')
+    
+# api.add_resource(Departments, '/departments')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
