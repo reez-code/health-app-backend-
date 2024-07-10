@@ -38,6 +38,7 @@ with app.app_context():
     "Endocrinology"
 ]
     
+    
     print("Creating departments...")
     
     departments=[]
