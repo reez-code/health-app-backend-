@@ -10,6 +10,8 @@ flask-migrate = "*"
 faker = "*"
 sqlalchemy-serializer = "*"
 validators = "*"
+flask-bcrypt = "*"
+flask-jwt-extended = "*"
 
 [dev-packages]
 
