@@ -5,13 +5,13 @@ name = "pypi"
 
 [packages]
 flask = "*"
-sqlalchemy = "*"
 flask-sqlalchemy = "*"
 flask-migrate = "*"
-sqlalchemy-serializer = "*"
-flask-restful = "*"
 faker = "*"
+sqlalchemy-serializer = "*"
 validators = "*"
+pillow = "*"
+flask-restful = "*"
 
 [dev-packages]
 

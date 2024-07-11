@@ -39,7 +39,7 @@ api.add_resource(Home, '/')
 
 class Patients(Resource):
     def get(self):
-        response_dict_list = [n.to_dict() for n in Patients.querry.all()]
+        response_dict_list = [n.to_dict() for n in Patient.query.all()]
         response = make_response(
             response_dict_list,
             200)
@@ -65,9 +65,50 @@ class Patients(Resource):
     
 api.add_resource(Patients, '/patients')
 
-# api.add_resource(PatientByID, '/patients/<int:id>')
+class PatientByID(Resource):
+    def get(self, id):
+        response_dict = Patient.query.filter_by(id=id).first().to_dict()
+        response= make_response(response_dict, 200)
+        return response
     
-# api.add_resource(Departments, '/departments')
+    def delete(self,id):
+        record = Patient.query.filter_by(id=id).first()
+        if record:
+            db.session.delete(record)
+            db.session.commit()
+            response_dict = {"message": "Patient deleted successfully"}
+            response = make_response(response_dict, 200)
+        else:
+            response_dict = {"message": "Patient not found"}
+            response = make_response(response_dict, 404)
+        return response
+
+api.add_resource(PatientByID, '/patients/<int:id>')
+
+class DepartmentResource(Resource):
+    def get(self):
+        results = []
+        
+        for department in Department.query.all():
+            results.append(department.to_dict())
+            
+        return make_response(jsonify(results), 200)
+   
+   
+    def post(self):
+
+        new_record = Department(
+            name=request.form['name']
+        )  
+        db.session.add(new_record)
+        db.session.commit()
+        response_dict = new_record.to_dict()
+        response = make_response(
+            response_dict,
+            201)
+        return response
+    
+api.add_resource(DepartmentResource, '/departments_all')
 
 if __name__ == '__main__':
-    app.run(port=5555, debug=True)
+    app.run(port=5000, debug=True)
