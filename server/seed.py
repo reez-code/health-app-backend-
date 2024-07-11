@@ -112,7 +112,8 @@ with app.app_context():
             gender=random.choice(["Male", "Female"]),
             phone_number=faker.phone_number(),
             diagnosis=random.choice(disease_list),
-            email=faker.email());
+            email=faker.email(),
+            password=faker.password());
         
         patients.append(patient)
             

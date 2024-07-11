@@ -14,7 +14,7 @@ metadata = MetaData(
 
 db = SQLAlchemy(metadata=metadata)
 
-class Department(db.Model):
+class Department(db.Model, SerializerMixin):
     __tablename__ = "departments"
     
     id = db.Column(db.Integer, primary_key=True)
@@ -32,6 +32,7 @@ class Patient(db.Model, SerializerMixin):
     phone_number = db.Column(db.String)
     email = db.Column(db.String)
     diagnosis=db.Column(db.String)
+    password = db.Column(db.String)
     # appointment_id=db.Column(db.Integer, db.ForeignKey('appointments.id'))
     
     
