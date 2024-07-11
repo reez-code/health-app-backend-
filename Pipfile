@@ -10,6 +10,8 @@ flask-migrate = "*"
 faker = "*"
 sqlalchemy-serializer = "*"
 validators = "*"
+pillow = "*"
+flask-restful = "*"
 
 [dev-packages]
 
