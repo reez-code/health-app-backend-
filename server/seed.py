@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-
-from app import app
 import random
 from models import db,Patient, Department
 from faker import Faker
@@ -112,7 +109,8 @@ with app.app_context():
             gender=random.choice(["Male", "Female"]),
             phone_number=faker.phone_number(),
             diagnosis=random.choice(disease_list),
-            email=faker.email());
+            email=faker.email(),
+            password=faker.password());
         
         patients.append(patient)
             
