@@ -1,8 +1,5 @@
-#!/usr/bin/env python3
-
-from app import app
 import random
-from models import db,Patient, Department
+from server.modelss import db,Patient, Department
 from faker import Faker
 
 faker = Faker()
