@@ -1,5 +1,5 @@
 import random
-from models import db,Patient, Department
+from server.modelss import db,Patient, Department
 from faker import Faker
 
 faker = Faker()

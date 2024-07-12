@@ -10,7 +10,7 @@ from flask_bcrypt import generate_password_hash,Bcrypt
 from sqlalchemy import and_, not_
 
 
-from models import db, Department,Patient
+from server.modelss import db, Department,Patient
 
 app = Flask(__name__)
 # configure db connection
