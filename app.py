@@ -1,15 +1,21 @@
-from resources import DoctorResource, DoctorDetailResource, AppointmentResource, AppointmentDetailResource, AdminResource, SignupResource
+from resources import DoctorResource, DoctorDetailResource, AppointmentResource, AppointmentDetailResource, AdminResource, SignupResource, Home,Patients,PatientByID,DepartmentResource
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Api
 from models import db
+import secrets
+from auth import auth_bp  
 import logging
 
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Set a secret key for session management
+app.config['SECRET_KEY'] = 'secrets.token_hex(16)' # Change this to a random, unique string
+
 
 
 db.init_app(app)
@@ -27,6 +33,21 @@ api.add_resource(AppointmentResource, '/appointments')
 api.add_resource(AppointmentDetailResource, '/appointments/<int:id>')
 api.add_resource(AdminResource, '/admins')
 api.add_resource(SignupResource, '/signup')
+#api lema
+api.add_resource(DepartmentResource, '/departments_all')
+api.add_resource(Patients, '/patients')
+api.add_resource(PatientByID, '/patients/<int:id>')
+api.add_resource(Home, '/')
+
+
+
+app.register_blueprint(auth_bp, url_prefix='/auth')
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
