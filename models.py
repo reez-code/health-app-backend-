@@ -1,11 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy.ext.associationproxy import association_proxy
 import validators
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import validates
-from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
 
@@ -62,11 +60,11 @@ class Doctor(db.Model, SerializerMixin):
             raise ValueError("Invalid email address")
         return email
 
-    # @validates("phone")
-    # def validate_phone(self, key, phone):
-    #     if not validators.length(phone, min=10, max=15):
-    #         raise ValueError("Phone number must be between 10 and 15 characters")
-    #     return phone
+    @validates("phone")
+    def validate_phone(self, key, phone):
+        if not validators.length(phone, min=10, max=15):
+            raise ValueError("Phone number must be between 10 and 15 characters")
+        return phone
 
     def __repr__(self):
         return f"Doctor(id={self.id}, name={self.name}, email={self.email})"
@@ -124,33 +122,11 @@ class Admin(db.Model, SerializerMixin):
             raise ValueError("Invalid email address")
         return email
 
-    # @validates('phone')
-    # def validate_phone(self, key, phone):
-    #     if not validators.length(phone, min=10, max=15):
-    #         raise ValueError("Phone number must be between 10 and 15 characters")
-    #     return phone
-
-
-# class Signup(db.Model, SerializerMixin):
-#     __tablename__ = 'signups'
-#     id = db.Column(db.Integer, primary_key=True)
-#     username = db.Column(db.String, nullable=False)
-#     email = db.Column(db.String, nullable=False, unique=True)
-#     password = db.Column(db.String, nullable=False)
-
-#     def to_dict(self):
-#         return {
-#             'id': self.id,
-#             "name": self.username,
-#             'email': self.email,
-
-#         }
-
-#     @validates('email')
-#     def validate_email(self, key, email):
-#         if not validators.email(email):
-#             raise ValueError("Invalid email address")
-#         return email
+    @validates('phone')
+    def validate_phone(self, key, phone):
+        if not validators.length(phone, min=10, max=15):
+            raise ValueError("Phone number must be between 10 and 15 characters")
+        return phone
 
 # lema code
 
@@ -182,7 +158,7 @@ class Patient(db.Model, SerializerMixin):
     email = db.Column(db.String)
     diagnosis = db.Column(db.String)
     password = db.Column(db.String)
-    # appointment_id=db.Column(db.Integer, db.ForeignKey('appointments.id'))
+  
 
     def to_dict(self):
         return {"id": self.id,

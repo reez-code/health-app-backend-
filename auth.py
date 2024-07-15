@@ -29,7 +29,7 @@ def logout():
     session.pop('role', None)
     return jsonify({"message": "Logged out successfully"}), 200
 
-# Route to access appointments
+#Route to access appointments
 @auth_bp.route('/appointments', methods=['GET'])
 def get_appointments():
     if 'role' not in session:
@@ -59,9 +59,9 @@ def get_appointments():
 # Route for viewing doctors (admin only)
 @auth_bp.route('/doctors', methods=['GET'])
 def get_doctors():
-    if 'role' not in session or session['role'] != 'admin':
+    if 'role' not in session or session['role'] not in ['admin', 'patient']:
         return jsonify({"message": "Unauthorized"}), 401
-    
+
     doctors = Doctor.query.all()
     return jsonify({"doctors": [doc.to_dict() for doc in doctors]}), 200
 
