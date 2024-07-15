@@ -9,14 +9,11 @@ flask-migrate = "*"
 flask-sqlalchemy = "*"
 flask-restful = "*"
 sqlalchemy = "*"
-sqlalchemy-serializer = "*"
-validators = "*"
 flask-bcrypt = "*"
-flask-jwt-extended = "*"
-flask-bcrypt = "*"
-flask-jwt-extended = "*"
-faker = "*"
 flask-cors = "*"
+sqlalchemy-serializer = "*"
+faker = "*"
+flask-jwt-extended = "*"
 
 [dev-packages]
 
