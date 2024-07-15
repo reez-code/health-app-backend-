@@ -1,8 +1,9 @@
 from faker import Faker
 from datetime import datetime
+from werkzeug.security import generate_password_hash
 from random import choice as rc
 from app import app
-from models import db, Doctor, Appointment, Admin
+from models import db, Doctor, Appointment, Admin,Patient,Department,User
 
 fake = Faker()
 
@@ -60,12 +61,112 @@ admin_roles = [
     "Second Opinion Consultation"
 ]
 
+department_names = [
+    "Cardiology",
+    "Orthopedics",
+    "Neurology",
+    "Oncology",
+    "Pediatrics",
+    "Dermatology",
+    "Gynecology",
+    "Urology",
+    "Ophthalmology",
+    "ENT (Ear, Nose, Throat)",
+    "Radiology",
+    "Emergency Medicine",
+    "Anesthesiology",
+    "Psychiatry",
+    "Physical Therapy",
+    "Internal Medicine",
+    "Surgery",
+    "Pathology",
+    "Gastroenterology",
+    "Endocrinology"
+]
+
+disease_list = [
+    "Common Cold",
+    "Influenza (Flu)",
+    "Pneumonia",
+    "Bronchitis",
+    "Asthma",
+    "Chronic Obstructive Pulmonary Disease (COPD)",
+    "Hypertension (High Blood Pressure)",
+    "Coronary Artery Disease",
+    "Heart Failure",
+    "Stroke",
+    "Diabetes Mellitus",
+    "Hypothyroidism",
+    "Hyperthyroidism",
+    "Obesity",
+    "Arthritis",
+    "Osteoporosis",
+    "Rheumatoid Arthritis",
+    "Gastroesophageal Reflux Disease (GERD)",
+    "Peptic Ulcer Disease",
+    "Irritable Bowel Syndrome (IBS)",
+    "Inflammatory Bowel Disease (IBD)",
+    "Gallstones",
+    "Kidney Stones",
+    "Urinary Tract Infection (UTI)",
+    "Benign Prostatic Hyperplasia (BPH)",
+    "Erectile Dysfunction (ED)",
+    "Anxiety Disorders",
+    "Depressive Disorders",
+    "Bipolar Disorder",
+    "Schizophrenia",
+    "Attention Deficit Hyperactivity Disorder (ADHD)",
+    "Alzheimer's Disease",
+    "Parkinson's Disease",
+    "Multiple Sclerosis (MS)",
+    "Migraine",
+    "Epilepsy",
+    "Cancer (Various Types)",
+    "Human Immunodeficiency Virus (HIV) Infection",
+    "Acquired Immunodeficiency Syndrome (AIDS)",
+    "Chlamydia",
+    "Gonorrhea",
+    "Syphilis",
+    "Hepatitis (Various Types)",
+    "Tuberculosis (TB)",
+    "Malaria",
+    "Dengue Fever",
+    "Chikungunya Fever",
+    "Zika Virus Infection",
+    "Ebola Virus Disease",
+    "COVID-19 (Coronavirus Disease)"
+]
+
+users = [
+            {
+                'username': 'patient1',
+                'password': 'password123',
+                'email': 'patient1@example.com',
+                'role': 'patient'
+            },
+            {
+                'username': 'doctor1',
+                'password': 'password456',
+                'email': 'doctor1@example.com',
+                'role': 'doctor'
+            },
+            {
+                'username': 'admin1',
+                'email': 'admin1@example.com',
+                'password': 'password789',
+                'role': 'admin'
+            }
+        ]
+        
 with app.app_context():
     # This will delete any existing rows
     print("Deleting data...")
     db.session.query(Doctor).delete()
     db.session.query(Appointment).delete()
     db.session.query(Admin).delete()
+    db.session.query(Department).delete()
+    db.session.query(Patient).delete()
+    db.session.query(User).delete()
     db.session.commit()
 
     # creating doctors
@@ -78,7 +179,8 @@ with app.app_context():
             specialization=rc(doctor_specialisations),
             phone=fake.phone_number(),
             password=fake.password(length=10),
-            image=rc(doctor_image)
+            image=rc(doctor_image),
+           
         )
         doctors.append(doctor)
     db.session.add_all(doctors)
@@ -90,6 +192,8 @@ with app.app_context():
     for i in range(20):
         appointment = Appointment(
             reason=rc(appointment_reasons),
+            doctor_id=fake.random_int(min=1, max=30),
+            patient_id=fake.random_int(min=1, max=30),
             timestamp=fake.date_time_this_year(before_now=True, after_now=False)
         )
         appointments.append(appointment)
@@ -110,5 +214,63 @@ with app.app_context():
         admins.append(admin)
     db.session.add_all(admins)
     db.session.commit()
+    
+    
+       # Creating patients
+    print("Creating patients...")
+    patients = []
+    for _ in range(30):
+        patient = Patient(
+            name=fake.name(),
+            doctor_id=fake.random_int(min=1, max=30),
+            age=fake.random_int(min=18, max=90),
+            gender=rc(["Male", "Female"]),
+            phone_number=fake.phone_number(),
+            diagnosis=rc(disease_list),
+            email=fake.email(),
+            password=fake.password());
+        
+        patients.append(patient)
+    db.session.add_all(patients)
+    db.session.commit()
+    
+    print("Creating departments...")
+    
+    departments=[]
+    for i in range(20):
+        department=Department(
+            name=rc(department_names)
+        )
+        departments.append(department)
+        
+        
+    db.session.add_all(departments)
+    db.session.commit()
+    
+     # Associating doctors with departments
+    print("Associating doctors with departments...")
+    for doctor in doctors:
+        department_ids = [d.id for d in Department.query.order_by(db.func.random()).limit(3)]
+        for department_id in department_ids:
+            doctor.departments.append(Department.query.get(department_id))
+    db.session.commit()
+    
+    
+     # Create new users
+    for user_data in users:
+        app.config['SECRET_KEY'] = 'secrets.token_hex(16)'
+        
+        hashed_password = generate_password_hash(user_data['password'])
+        user = User(
+            username=user_data['username'],
+            email=user_data['email'],
+            password=hashed_password,
+            role=user_data['role']
+        )
+        db.session.add(user)
+        
+        # Commit changes
+    db.session.commit()
+    print("Users seeded successfully")  
 
 print("Database seeded successfully.")

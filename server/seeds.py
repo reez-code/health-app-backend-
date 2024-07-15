@@ -1,3 +1,4 @@
+
 import random
 from server.modelss import db,Patient, Department
 from faker import Faker

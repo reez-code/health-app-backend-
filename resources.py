@@ -1,7 +1,7 @@
 from flask_restful import Resource
-from flask import request, jsonify
+from flask import request, jsonify,make_response
 from datetime import datetime
-from models import db, Doctor, Appointment, Admin, Signup
+from models import db, Doctor, Appointment, Admin,Patient, Department,User
 from werkzeug.security import generate_password_hash
 import logging
 
@@ -118,17 +118,18 @@ class AdminResource(Resource):
 class SignupResource(Resource):
     def post(self):
         data = request.get_json()
-        required_fields = ['email', 'password','name']
+        required_fields = ['email', 'password','username',"role"]
         missing_fields = [field for field in required_fields if field not in data]
         if missing_fields:
             return jsonify({"error": f"Missing required fields: {missing_fields}"}), 400
 
         try:
             hashed_password = generate_password_hash(data['password'])
-            new_user = Signup(
-                name=data['name'],
+            new_user = User(
+                username=data['username'],
                 email=data['email'],
-                password=hashed_password
+                password=hashed_password,
+                role=data['role']
             )
             db.session.add(new_user)
             db.session.commit()
@@ -136,3 +137,94 @@ class SignupResource(Resource):
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
+
+
+#lema work
+
+class Home(Resource):
+
+    def get(self):
+
+        response_dict = {
+            "message": "Welcome to the Welcome to Health Application",
+        }
+
+        response = make_response(
+            response_dict,
+            200
+        )
+
+        return response
+
+
+class Patients(Resource):
+    def get(self):
+        response_dict_list = [n.to_dict() for n in Patient.query.all()]
+        response = make_response(
+            response_dict_list,
+            200)
+        return response
+    
+    def post(self):
+        new_record = Patient(
+            name=request.form['name'],
+            age=request.form['age'],
+            gender=request.form['gender'],
+            phone_number=request.form['phone_number'],
+            diagnosis=request.form['diagnosis'],
+            email=request.form['email']
+        )
+        db.session.add(new_record)
+        db.session.commit()
+        response_dict = new_record.to_dict()
+        
+        response = make_response(
+            response_dict,
+            201)
+        return response
+    
+
+class PatientByID(Resource):
+    def get(self, id):
+        response_dict = Patient.query.filter_by(id=id).first().to_dict()
+        response= make_response(response_dict, 200)
+        return response
+    
+    def delete(self,id):
+        record = Patient.query.filter_by(id=id).first()
+        if record:
+            db.session.delete(record)
+            db.session.commit()
+            response_dict = {"message": "Patient deleted successfully"}
+            response = make_response(response_dict, 200)
+        else:
+            response_dict = {"message": "Patient not found"}
+            response = make_response(response_dict, 404)
+        return response
+
+
+class DepartmentResource(Resource):
+    def get(self):
+        results = []
+        
+        for department in Department.query.all():
+            results.append(department.to_dict())
+            
+        return make_response(jsonify(results), 200)
+   
+   
+    def post(self):
+
+        new_record = Department(
+            name=request.form['name']
+        )  
+        db.session.add(new_record)
+        db.session.commit()
+        response_dict = new_record.to_dict()
+        response = make_response(
+            response_dict,
+            201)
+        return response
+    
+    
+    
