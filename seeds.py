@@ -2,7 +2,7 @@ import random
 from random import choice as rc
 from models import db, Department,Patient,Doctor,Appointment,Admin 
 from faker import Faker
-from app import app
+from apps import app
 
 
 with app.app_context():
