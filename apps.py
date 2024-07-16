@@ -19,16 +19,42 @@ app.config['SECRET_KEY'] = 'secrets.token_hex(16)' # Change this to a random, un
 db.init_app(app)
 migrate = Migrate(app, db)
 
+# setup migration tool
+db.init_app(app)
+
 api = Api(app)
 
-logging.basicConfig(level=logging.DEBUG)
+# initialize bcrypt
+bcrypt = Bcrypt(app)
 
+# setup jwt
+jwt = JWTManager(app)
+
+
+
+class Home(Resource):
+
+    def get(self):
+
+        response_dict = {
+            "message": "Welcome to the Health Application",
+        }
+
+        response = make_response(
+            response_dict,
+            200
+        )
+
+        return response
 
 # Add resources to API
-api.add_resource(DoctorResource, '/doctors')
-api.add_resource(DoctorDetailResource, '/doctors/<int:id>')
-api.add_resource(AppointmentResource, '/appointments')
-api.add_resource(AppointmentDetailResource, '/appointments/<int:id>')
+api.add_resource(Home, '/')         
+api.add_resource(PatientResource,'/patients','/patients/<int:id>')
+api.add_resource(DepartmentResource, '/departments_all')
+api.add_resource(DoctorResource, '/doctors', '/doctors/<int:id>')
+# api.add_resource(DoctorDetailResource, '/doctors/<int:id>')
+api.add_resource(AppointmentResource, '/appointments', '/appointments/<int:id>')
+# api.add_resource(AppointmentDetailResource, ')
 api.add_resource(AdminResource, '/admins')
 api.add_resource(SignupResource, '/signup')
 #api lema
