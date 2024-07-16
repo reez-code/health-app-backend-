@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from flask import request, jsonify,make_response
 from datetime import datetime
-from modelss import db, Doctor, Appointment, Admin,Patient, Department,User
+from modelss import db, Doctor, Appointment, Admin,Patient, Department
 from werkzeug.security import generate_password_hash
 import logging
 
@@ -114,30 +114,44 @@ class AdminResource(Resource):
         admins_dict = [admin.to_dict() for admin in admins]
         return jsonify(admins_dict)
 
-# Signup Resource
 class SignupResource(Resource):
     def post(self):
         data = request.get_json()
-        required_fields = ['email', 'password','username',"role"]
+        required_fields = ['email', 'password', 'username', 'role']
         missing_fields = [field for field in required_fields if field not in data]
         if missing_fields:
             return jsonify({"error": f"Missing required fields: {missing_fields}"}), 400
 
         try:
             hashed_password = generate_password_hash(data['password'])
-            new_user = User(
-                username=data['username'],
-                email=data['email'],
-                password=hashed_password,
-                role=data['role']
-            )
+            role = data['role'].lower()
+            if role == 'patient':
+                new_user = Patient(
+                    name=data['username'],
+                    email=data['email'],
+                    password=hashed_password
+                )
+            elif role == 'doctor':
+                new_user = Doctor(
+                    name=data['username'],
+                    email=data['email'],
+                    password=hashed_password
+                )
+            elif role == 'admin':
+                new_user = Admin(
+                    name=data['username'],
+                    email=data['email'],
+                    password=hashed_password
+                )
+            else:
+                return jsonify({"error": "Invalid role specified"}), 400
+
             db.session.add(new_user)
             db.session.commit()
             return jsonify(new_user.to_dict()), 201
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": str(e)}), 500
-
 
 #lema work
 

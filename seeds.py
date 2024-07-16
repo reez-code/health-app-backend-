@@ -3,7 +3,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash
 from random import choice as rc
 from apps import app
-from modelss import db, Doctor, Appointment, Admin,Patient,Department,User
+from modelss import db, Doctor, Appointment, Admin,Patient,Department
 
 fake = Faker()
 
@@ -137,26 +137,7 @@ disease_list = [
     "COVID-19 (Coronavirus Disease)"
 ]
 
-users = [
-            {
-                'username': 'patient1',
-                'password': 'password123',
-                'email': 'patient1@example.com',
-                'role': 'patient'
-            },
-            {
-                'username': 'doctor1',
-                'password': 'password456',
-                'email': 'doctor1@example.com',
-                'role': 'doctor'
-            },
-            {
-                'username': 'admin1',
-                'email': 'admin1@example.com',
-                'password': 'password789',
-                'role': 'admin'
-            }
-        ]
+
         
 with app.app_context():
     # This will delete any existing rows
@@ -166,7 +147,6 @@ with app.app_context():
     db.session.query(Admin).delete()
     db.session.query(Department).delete()
     db.session.query(Patient).delete()
-    db.session.query(User).delete()
     db.session.commit()
 
     # creating doctors
@@ -256,21 +236,6 @@ with app.app_context():
     db.session.commit()
     
     
-     # Create new users
-    for user_data in users:
-        app.config['SECRET_KEY'] = 'secrets.token_hex(16)'
-        
-        hashed_password = generate_password_hash(user_data['password'])
-        user = User(
-            username=user_data['username'],
-            email=user_data['email'],
-            password=hashed_password,
-            role=user_data['role']
-        )
-        db.session.add(user)
-        
-        # Commit changes
-    db.session.commit()
-    print("Users seeded successfully")  
+    
 
 print("Database seeded successfully.")
