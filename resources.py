@@ -1,5 +1,6 @@
 from flask_restful import Resource
 from flask import request, jsonify,make_response
+from flask import request, jsonify,make_response
 from datetime import datetime
 from modelss import db, Doctor, Appointment, Admin,Patient, Department
 from werkzeug.security import generate_password_hash
