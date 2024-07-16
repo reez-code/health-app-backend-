@@ -2,22 +2,19 @@
 
 from flask import Flask
 from flask_migrate import Migrate
-from datetime import datetime
 from flask_restful import Api, Resource
-from flask import Flask, jsonify, request, make_response
+from flask import Flask,make_response
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt
 from flask_bcrypt import generate_password_hash,Bcrypt
-from sqlalchemy import and_, not_
+
 
 
 from models import db
-# from server.models import db, Department,Patient,Doctor,Appointment,Admin 
 from resources.patient import PatientResource
 from resources.department import DepartmentResource
-from resources.doctor import DoctorResource, DoctorDetailResource
+from resources.doctor import DoctorResource
 from resources.admin import AdminResource
-from resources.appointment import AppointmentResource, AppointmentDetailResource
-
+from resources.appointment import AppointmentResource
 
 
 
@@ -62,10 +59,10 @@ class Home(Resource):
 api.add_resource(Home, '/')         
 api.add_resource(PatientResource,'/patients','/patients/<int:id>')
 api.add_resource(DepartmentResource, '/departments_all')
-api.add_resource(DoctorResource, '/doctors')
-api.add_resource(DoctorDetailResource, '/doctors/<int:id>')
-api.add_resource(AppointmentResource, '/appointments')
-api.add_resource(AppointmentDetailResource, '/appointments/<int:id>')
+api.add_resource(DoctorResource, '/doctors', '/doctors/<int:id>')
+# api.add_resource(DoctorDetailResource, '/doctors/<int:id>')
+api.add_resource(AppointmentResource, '/appointments', '/appointments/<int:id>')
+# api.add_resource(AppointmentDetailResource, ')
 api.add_resource(AdminResource, '/admins')
 # api.add_resource(SignupResource, '/signup')
 # api.add_resource(LoginResource, '/login')

@@ -1,5 +1,5 @@
 from flask_restful import Resource, reqparse
-from sqlalchemy import and_, not_
+from flask_bcrypt import generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt
 from models import db, Patient
 
@@ -43,8 +43,17 @@ class PatientResource(Resource):
             
             return patient.to_dict()
         
+    @jwt_required()    
     def post(self):
+        jwt = get_jwt()
+        if jwt ['role'] != 'patient':
+            return {"message":"Unauthorized request"}, 401
+        
         data= PatientResource.parser.parse_args()
+        
+        data['password'] = generate_password_hash(
+            data['password']).decode('utf-8')
+        
         print (data)
         # verify email and phone numbers are available
         email= Patient.query.filter_by(email=data['email']).first()
@@ -56,13 +65,18 @@ class PatientResource(Resource):
             return {"message": "Phone number already exists"}, 422
         
         patient= Patient(**data)
-        
         db.session.add(patient)
         db.session.commit()
         
         return {"message": "Patient created successfully"}
     
+    @jwt_required()
     def delete (self,id):
+        
+        jwt = get_jwt()
+        if jwt['role']!= 'admin' or  jwt['role']!= 'doctor':
+            return {"message":"Unauthorized request"}, 401
+        
         patient = Patient.query.filter_by(id=id).first()
         if patient == None:
             return {"message": "Patient not found","status": "fail"}, 404

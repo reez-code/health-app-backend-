@@ -1,7 +1,8 @@
 from flask_restful import Resource,reqparse
 from models import  Admin
+from flask_bcrypt import generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt
-from sqlalchemy import and_, not_
+
 
 # Admin Resource
 class AdminResource(Resource):
@@ -15,8 +16,9 @@ class AdminResource(Resource):
     @jwt_required()
     def get(self, id=None):
         jwt = get_jwt()
-        if jwt['role']!= 'admin':
+        if jwt['role'] != 'admin':
             return {"messgae":"Unauthorized request"}, 401  
+        
 
         if id==None:
             admins = Admin.query.all()
