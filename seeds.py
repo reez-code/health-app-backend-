@@ -1,6 +1,6 @@
 from faker import Faker
 from datetime import datetime
-from werkzeug.security import generate_password_hash
+
 from random import choice as rc
 from apps import app
 from modelss import db, Doctor, Appointment, Admin,Patient,Department
