@@ -7,6 +7,7 @@ from sqlalchemy.orm import validates
 db = SQLAlchemy()
 
 
+
 doctor_department_association = db.Table(
     'doctor_department_association',
     db.Column('doctor_id', db.Integer, db.ForeignKey('doctors.id'), primary_key=True),
@@ -113,7 +114,7 @@ class Admin(db.Model, SerializerMixin):
     #         raise ValueError("Phone number must be between 10 and 15 characters")
     #     return phone
 
-# lema code
+
 
 
 class Department(db.Model, SerializerMixin):
