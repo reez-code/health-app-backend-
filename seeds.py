@@ -174,7 +174,7 @@ with app.app_context():
             reason=rc(appointment_reasons),
             doctor_id=fake.random_int(min=1, max=30),
             patient_id=fake.random_int(min=1, max=30),
-            timestamp=fake.date_time_this_year(before_now=True, after_now=False)
+            created_at=fake.date_time_this_year(before_now=True, after_now=False)
         )
         appointments.append(appointment)
     db.session.add_all(appointments)

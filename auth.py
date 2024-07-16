@@ -40,20 +40,4 @@ def logout():
     session.pop('role', None)
     return jsonify({"message": "Logged out successfully"}), 200
 
-@auth_bp.route('/signup/patient', methods=['POST'])
-def signup_patient():
-    data = request.json
-    name = data.get('name')
-    email = data.get('email')
-    password = data.get('password')
-    
-    if not all([name, email, password]):
-        return jsonify({"message": "Missing data"}), 400
 
-    hashed_password = generate_password_hash(password)
-    new_patient = Patient(name=name, email=email, password=hashed_password)
-    
-    db.session.add(new_patient)
-    db.session.commit()
-
-    return jsonify({"message": "Patient created successfully"}), 201

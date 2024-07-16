@@ -22,7 +22,7 @@ class Doctor(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
-    phone = db.Column(db.String, nullable=False)
+    phone = db.Column(db.String )
     specialization = db.Column(db.String)
     password = db.Column(db.String)
     image = db.Column(db.String)
@@ -46,11 +46,11 @@ class Doctor(db.Model, SerializerMixin):
             raise ValueError("Invalid email address")
         return email
 
-    @validates("phone")
-    def validate_phone(self, key, phone):
-        if not validators.length(phone, min=10, max=15):
-            raise ValueError("Phone number must be between 10 and 15 characters")
-        return phone
+    # @validates("phone")
+    # def validate_phone(self, key, phone):
+    #     if not validators.length(phone, min=10, max=15):
+    #         raise ValueError("Phone number must be between 10 and 15 characters")
+    #     return phone
 
     def __repr__(self):
         return f"Doctor(id={self.id}, name={self.name}, email={self.email})"
@@ -62,14 +62,14 @@ class Appointment(db.Model, SerializerMixin):
     reason = db.Column(db.String)
     doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
     patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"))
-    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     def to_dict(self):
         return {"id": self.id,
                 "reason": self.reason,
                 "patient_id": self.patient_id,
                 "doctor_id": self.doctor_id,
-                "timestamp": self.timestamp}
+                "created_at": self.created_at}
 
     @validates("timestamp")
     def validate_timestamp(self, key, timestamp):
@@ -89,7 +89,7 @@ class Admin(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
-    phone = db.Column(db.String, nullable=False)
+    phone = db.Column(db.String)
     password = db.Column(db.String)
     role = db.Column(db.String)
 
@@ -108,11 +108,11 @@ class Admin(db.Model, SerializerMixin):
             raise ValueError("Invalid email address")
         return email
 
-    @validates('phone')
-    def validate_phone(self, key, phone):
-        if not validators.length(phone, min=10, max=15):
-            raise ValueError("Phone number must be between 10 and 15 characters")
-        return phone
+    # @validates('phone')
+    # def validate_phone(self, key, phone):
+    #     if not validators.length(phone, min=10, max=15):
+    #         raise ValueError("Phone number must be between 10 and 15 characters")
+    #     return phone
 
 # lema code
 
@@ -141,7 +141,7 @@ class Patient(db.Model, SerializerMixin):
     doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
     age = db.Column(db.String)
     phone_number = db.Column(db.String)
-    email = db.Column(db.String)
+    email = db.Column(db.String , unique=True)
     diagnosis = db.Column(db.String)
     password = db.Column(db.String)
   
@@ -161,12 +161,12 @@ class Patient(db.Model, SerializerMixin):
     appointment = db.relationship(
         "Appointment", uselist=False, back_populates="patient")
 
-    @validates("phone")
-    def validate_phone(self, key, phone):
-        if not validators.length(phone, min=10, max=15):
-            raise ValueError(
-                "Phone number must be between 10 and 15 characters")
-        return phone
+    # @validates("phone")
+    # def validate_phone(self, key, phone):
+    #     if not validators.length(phone, min=10, max=15):
+    #         raise ValueError(
+    #             "Phone number must be between 10 and 15 characters")
+    #     return phone
 
     @validates('email')
     def validate_email(self, key, address):

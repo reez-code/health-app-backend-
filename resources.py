@@ -88,12 +88,12 @@ class AppointmentDetailResource(Resource):
 
         if 'reason' in data:
             appointment.reason = data['reason']
-        if 'timestamp' in data:
+        if 'created_at' in data:
             try:
-                timestamp = datetime.fromisoformat(data['timestamp'])
+                created_at = datetime.fromisoformat(data['created_at'])
             except ValueError:
                 return jsonify({"error": "Invalid timestamp format. Use 'YYYY-MM-DDTHH:MM:SS' format."}), 400
-            appointment.timestamp = timestamp
+            appointment.created_at = created_at
 
         db.session.commit()
         return jsonify(appointment.to_dict()), 200
@@ -120,11 +120,19 @@ class SignupResource(Resource):
         required_fields = ['email', 'password', 'username', 'role']
         missing_fields = [field for field in required_fields if field not in data]
         if missing_fields:
-            return jsonify({"error": f"Missing required fields: {missing_fields}"}), 400
+            return {"error": f"Missing required fields: {', '.join(missing_fields)}"}, 400
+
+        role = data['role'].lower()
+        email_exists = Patient.query.filter_by(email=data['email']).first() or \
+                       Doctor.query.filter_by(email=data['email']).first() or \
+                       Admin.query.filter_by(email=data['email']).first()
+
+        if email_exists:
+            return {"error": "Email already exists."}, 400
 
         try:
             hashed_password = generate_password_hash(data['password'])
-            role = data['role'].lower()
+            
             if role == 'patient':
                 new_user = Patient(
                     name=data['username'],
@@ -144,15 +152,15 @@ class SignupResource(Resource):
                     password=hashed_password
                 )
             else:
-                return jsonify({"error": "Invalid role specified"}), 400
+                return {"error": "Invalid role specified"}, 400
 
             db.session.add(new_user)
             db.session.commit()
-            return jsonify(new_user.to_dict()), 201
+            return {"message": f"User registered successfully as {role}."}, 201
+        
         except Exception as e:
             db.session.rollback()
-            return jsonify({"error": str(e)}), 500
-
+            return {"error": str(e)}, 500
 #lema work
 
 class Home(Resource):
