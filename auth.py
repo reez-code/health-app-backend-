@@ -1,6 +1,6 @@
 
 from flask import Blueprint, request, jsonify, session
-from models import User, Appointment, Doctor, Patient
+from modelss import User, Appointment, Doctor, Patient
 #from app import app
 from werkzeug.security import check_password_hash
 

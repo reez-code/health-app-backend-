@@ -1,10 +1,8 @@
 from resources import DoctorResource, DoctorDetailResource, AppointmentResource, AppointmentDetailResource, AdminResource, SignupResource, Home,Patients,PatientByID,DepartmentResource
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_restful import Api
-from models import db
-import secrets
+from modelss import db
 from auth import auth_bp  
 import logging
 
