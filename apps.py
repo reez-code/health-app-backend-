@@ -1,8 +1,12 @@
-from resources import DoctorResource, DoctorDetailResource, AppointmentResource, AppointmentDetailResource, AdminResource, SignupResource, Home,Patients,PatientByID,DepartmentResource
-from flask import Flask
+from resources import DoctorResource, AppointmentResource,AdminResource, SignupResource,SpecializationResource,PatientResource
+from flask import Flask, make_response
 from flask_migrate import Migrate
-from flask_restful import Api
-from modelss import db
+from flask_restful import Api,Resource
+from models import db
+import secrets
+from flask_bcrypt import Bcrypt
+from flask_jwt_extended import JWTManager
+
 from auth import auth_bp  
 import logging
 
@@ -12,15 +16,13 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Set a secret key for session management
-app.config['SECRET_KEY'] = 'secrets.token_hex(16)' # Change this to a random, unique string
+app.config['SECRET_KEY'] = secrets.token_hex(16) # Change this to a random, unique string
 
 
 
 db.init_app(app)
 migrate = Migrate(app, db)
 
-# setup migration tool
-db.init_app(app)
 
 api = Api(app)
 
@@ -50,7 +52,6 @@ class Home(Resource):
 # Add resources to API
 api.add_resource(Home, '/')         
 api.add_resource(PatientResource,'/patients','/patients/<int:id>')
-api.add_resource(DepartmentResource, '/departments_all')
 api.add_resource(DoctorResource, '/doctors', '/doctors/<int:id>')
 # api.add_resource(DoctorDetailResource, '/doctors/<int:id>')
 api.add_resource(AppointmentResource, '/appointments', '/appointments/<int:id>')
@@ -58,10 +59,8 @@ api.add_resource(AppointmentResource, '/appointments', '/appointments/<int:id>')
 api.add_resource(AdminResource, '/admins')
 api.add_resource(SignupResource, '/signup')
 #api lema
-api.add_resource(DepartmentResource, '/departments_all')
-api.add_resource(Patients, '/patients')
-api.add_resource(PatientByID, '/patients/<int:id>')
-api.add_resource(Home, '/')
+api.add_resource(SpecializationResource, '/specializations_all')
+
 
 
 

@@ -1,6 +1,6 @@
 import random
 from random import choice as rc
-from models import db, Department,Patient,Doctor,Appointment,Admin 
+from models import db,Patient,Doctor,Appointment,Admin ,Specialization
 from faker import Faker
 from apps import app
 
@@ -11,46 +11,35 @@ with app.app_context():
     # This will delete any existing rows
     # so you can run the seed file multiple times without having duplicate entries in your database
     print("Deleting data...")
-    Department.query.delete()
+    Specialization.query.delete()
     Patient.query.delete()
     Doctor.query.delete()
     Appointment.query.delete()
     Admin.query.delete()
     
     
-    
-    department_names = [
-    "Cardiology",
-    "Orthopedics",
-    "Neurology",
-    "Oncology",
-    "Pediatrics",
-    "Dermatology",
-    "Gynecology",
-    "Urology",
-    "Ophthalmology",
-    "ENT (Ear, Nose, Throat)",
-    "Radiology",
-    "Emergency Medicine",
-    "Anesthesiology",
-    "Psychiatry",
-    "Physical Therapy",
-    "Internal Medicine",
-    "Surgery",
-    "Pathology",
-    "Gastroenterology",
-    "Endocrinology"
+    doctor_specialisations = [
+    "Cardiology", "Orthopedic Surgery", "Neurology", "Oncology", "Pediatrics",
+    "Dermatology", "Gynecology", "Urology", "Ophthalmology", "Ear, Nose, and Throat (ENT)",
+    "Radiology", "Emergency Medicine", "Anesthesiology", "Psychiatry", "Physical Therapy",
+    "Internal Medicine", "General Surgery", "Pathology", "Gastroenterology", "Endocrinology",
+    "Hematology", "Pulmonology", "Rheumatology", "Infectious Disease", "Nephrology",
+    "Geriatrics", "Cardiothoracic Surgery", "Plastic Surgery", "Neurosurgery", "Oncologic Surgery",
+    "Hand Surgery", "Vascular Surgery", "Bariatric Surgery", "Oncologic Pathology",
+    "Forensic Pathology", "Pediatric Surgery", "Hepatology", "Reproductive Endocrinology",
+    "Allergy and Immunology", "Clinical Genetics", "Pain Medicine", "Sleep Medicine",
+    "Sports Medicine", "Vascular Medicine", "Infectious Disease Medicine", "Neurophysiology",
+    "Interventional Radiology", "Radiation Oncology", "Palliative Medicine", "Occupational Medicine"
 ]
     
+    print("Creating specialization...")
     
-    print("Creating departments...")
-    
-    departments=[]
+    specializations=[]
     for i in range(20):
-        department=Department(
-            name=random.choice(department_names)
+        specialization=Specialization(
+            name=random.choice(doctor_specialisations)
         )
-        departments.append(department)
+        specializations.append(specialization)
     
     disease_list = [
     "Common Cold",
@@ -121,7 +110,7 @@ with app.app_context():
         
         patients.append(patient)
             
-    db.session.add_all(departments)
+    db.session.add_all(specializations)
     db.session.add_all(patients)
     db.session.commit()
     
@@ -187,7 +176,6 @@ with app.app_context():
             doctor = Doctor(
                 name=fake.name(),
                 email=fake.email(),
-                specialization=rc(doctor_specialisations),
                 phone_number=fake.phone_number(),
                 password=fake.password(length=10),
                 image=rc(doctor_image)
@@ -202,7 +190,7 @@ with app.app_context():
     for i in range(20):
             appointment = Appointment(
                 reason=rc(appointment_reasons),
-                created_at=fake.date_time_this_year(before_now=True, after_now=False)
+                date_time=fake.date_time_this_year(before_now=True, after_now=False)
             )
             appointments.append(appointment)
     db.session.add_all(appointments)

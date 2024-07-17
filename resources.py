@@ -1,119 +1,13 @@
-from flask_restful import Resource
-from flask import request, jsonify,make_response
-from flask import request, jsonify,make_response
-from datetime import datetime
-from modelss import db, Doctor, Appointment, Admin,Patient, Department
-from werkzeug.security import generate_password_hash
-import logging
+from flask_restful import Resource,reqparse
+from models import db, Specialization
+from flask import Flask, jsonify, request, make_response
+from flask_jwt_extended import jwt_required, get_jwt
+from sqlalchemy import and_, not_
+from models import db,  Admin,Doctor,Appointment,Patient,Specialization
+from flask_bcrypt import generate_password_hash
 
 
-logging.basicConfig(level=logging.DEBUG)
-# Doctor Resource
-class DoctorResource(Resource):
-    def get(self):
-        try:
-            doctors = Doctor.query.all()
-            doctors_dict = [doctor.to_dict() for doctor in doctors]
-            logging.debug(f"Doctors fetched successfully: {doctors_dict}")
-            return jsonify(doctors_dict)
-        except Exception as e:
-            logging.error(f"Error fetching doctors: {e}")
-            return jsonify({"error": str(e)}), 500
 
-    def post(self):
-        data = request.get_json()
-        required_fields = ['name', 'email', 'phone', 'specialization', 'image']
-        missing_fields = [field for field in required_fields if field not in data]
-        if missing_fields:
-            return jsonify({"error": f"Missing required fields: {missing_fields}"}), 400
-
-        try:
-            doctor = Doctor(
-                name=data['name'],
-                email=data['email'],
-                phone=data['phone'],
-                specialization=data['specialization'],
-                image=data['image']
-            )
-            db.session.add(doctor)
-            db.session.commit()
-            return jsonify(doctor.to_dict()), 201
-        except Exception as e:
-            db.session.rollback()
-            return jsonify({"error": str(e)}), 500       
-
-class DoctorDetailResource(Resource):
- def get(self, id):
-    try:
-        doctor = Doctor.query.get(id)
-        if doctor is None:
-            return jsonify({"error": "Doctor not found."}), 404
-        return jsonify(doctor.to_dict())
-    except Exception as e:
-        logging.error(f"Error fetching doctor: {e}")
-        return jsonify({"error": str(e)}), 500
-def delete(self, id):
-        doctor = Doctor.query.get(id)
-        if doctor is None:
-            return jsonify({"error": "Doctor not found."}), 404
-
-        db.session.delete(doctor)
-        db.session.commit()
-        return jsonify({"message": "Doctor deleted successfully."}), 200
-
-# Appointment Resource
-class AppointmentResource(Resource):
-    def get(self):
-        appointments = Appointment.query.all()
-        appointments_dict = [appointment.to_dict() for appointment in appointments]
-        return jsonify(appointments_dict)
-
-    def post(self):
-        data = request.get_json()
-        try:
-            timestamp = datetime.fromisoformat(data['timestamp'])
-        except ValueError:
-            return jsonify({"error": "Invalid timestamp format. Use 'YYYY-MM-DDTHH:MM:SS' format."}), 400
-
-        appointment = Appointment(reason=data['reason'], timestamp=timestamp)
-        db.session.add(appointment)
-        db.session.commit()
-        return jsonify(appointment.to_dict()), 201
-
-class AppointmentDetailResource(Resource):
-    def patch(self, id):
-        data = request.get_json()
-        appointment = Appointment.query.get(id)
-        if not appointment:
-            return jsonify({"error": "Appointment not found"}), 404
-
-        if 'reason' in data:
-            appointment.reason = data['reason']
-        if 'created_at' in data:
-            try:
-                created_at = datetime.fromisoformat(data['created_at'])
-            except ValueError:
-                return jsonify({"error": "Invalid timestamp format. Use 'YYYY-MM-DDTHH:MM:SS' format."}), 400
-            appointment.created_at = created_at
-
-        db.session.commit()
-        return jsonify(appointment.to_dict()), 200
-
-    def delete(self, id):
-        appointment = Appointment.query.get(id)
-        if appointment is None:
-            return jsonify({"error": "Appointment not found."}), 404
-
-        db.session.delete(appointment)
-        db.session.commit()
-        return jsonify({"message": "Appointment deleted successfully."}), 200
-
-# Admin Resource
-class AdminResource(Resource):
-    def get(self):
-        admins = Admin.query.all()
-        admins_dict = [admin.to_dict() for admin in admins]
-        return jsonify(admins_dict)
 
 class SignupResource(Resource):
     def post(self):
@@ -161,84 +55,328 @@ class SignupResource(Resource):
         
         except Exception as e:
             db.session.rollback()
-            return {"error": str(e)}, 500
-#lema work
-
-class Home(Resource):
-
-    def get(self):
-
-        response_dict = {
-            "message": "Welcome to the Welcome to Health Application",
-        }
-
-        response = make_response(
-            response_dict,
-            200
-        )
-
-        return response
+            return {"error": str(e)}, 50
 
 
-class Patients(Resource):
-    def get(self):
-        response_dict_list = [n.to_dict() for n in Patient.query.all()]
-        response = make_response(
-            response_dict_list,
-            200)
-        return response
+# Admin Resource
+class AdminResource(Resource):
+     # create a new instance of reqparse
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', required=True, help="Name is required")
+    parser.add_argument('email', required=True, help="Email is required")
+    parser.add_argument('phone_number', required=True, help="Phone number is required")
+    parser.add_argument('password', required=True, help="Password is required")
     
-    def post(self):
-        new_record = Patient(
-            name=request.form['name'],
-            age=request.form['age'],
-            gender=request.form['gender'],
-            phone_number=request.form['phone_number'],
-            diagnosis=request.form['diagnosis'],
-            email=request.form['email']
-        )
-        db.session.add(new_record)
-        db.session.commit()
-        response_dict = new_record.to_dict()
+    @jwt_required()
+    def get(self, id=None):
+        jwt = get_jwt()
+        if jwt['role'] != 'admin':
+            return {"messgae":"Unauthorized request"}, 401  
         
-        response = make_response(
-            response_dict,
-            201)
-        return response
-    
 
-class PatientByID(Resource):
-    def get(self, id):
-        response_dict = Patient.query.filter_by(id=id).first().to_dict()
-        response= make_response(response_dict, 200)
-        return response
-    
-    def delete(self,id):
-        record = Patient.query.filter_by(id=id).first()
-        if record:
-            db.session.delete(record)
-            db.session.commit()
-            response_dict = {"message": "Patient deleted successfully"}
-            response = make_response(response_dict, 200)
-        else:
-            response_dict = {"message": "Patient not found"}
-            response = make_response(response_dict, 404)
-        return response
-
-
-class DepartmentResource(Resource):
-    def get(self):
-        results = []
-        
-        for department in Department.query.all():
-            results.append(department.to_dict())
+        if id==None:
+            admins = Admin.query.all()
+            results = []
             
-        return make_response(jsonify(results), 200)
-   
-   
-    def post(self):
+            for admin in admins:
+                results.append(admin.to_dict())
+                
+                return results
+        else:
+            admin =Admin.query.filter_by(id=id).first()
+            
+            if admin == None:
+                return {"message": "Admin not found"}, 404
+            return admin.to_dict()
+        
+  
+class AppointmentResource(Resource):
+     # create a new instance of reqparse
+     parser = reqparse.RequestParser()
+     parser.add_argument('reason', required=True, 
+                         help="Reason is required")
+     parser.add_argument('create_at', required=True, 
+                         help="Timestamp is required in ISO 8601 format")
+     
+     @jwt_required()
+     def get(self, id=None):
+        jwt = get_jwt()
+        if jwt['role'] != 'doctor' or jwt['role'] != 'admin':
+             return {"messgae":"Unauthorized request"}, 401
+        
+        if id == None:
+            appointments = Appointment.query.all()
+            results = []
+            
+            for appointment in appointments:
+                results.append(appointment.to_dict())
+                
+            return results
+        else:
+            appointment = Appointment.query.filter_by(id=id).first()
+            if appointment is None:
+                return {"messgae": "Appointment not found"}, 404
+            return appointment.to_dict()
+        
+     @jwt_required()
+     def patch(self, id):
+            jwt = get_jwt()
+            if jwt['role']!= 'doctor':
+                return {"messgae":"Unauthorized request"}, 401
+            
+            data = self.parser.parse_args()
+            appointment = Appointment.query.filter_by(id=id).first()
+            
+            if appointment == None:
+                return {"message": "Appointment not found"}, 404
+            
+            appointment= db.session.query(Appointment).first(
+                and_(Appointment.timestamp == data['create_at'], not_(Appointment.id==id))).first()
+            
+            if appointment:
+                return {"message": "Appointment already exists for this timestamp"}, 422
 
-        new_record = Department(
+            for key in data.keys():
+                setattr(appointment, key, data[key])
+                
+                db.session.commit()
+                return {"message": "Appointment updated successfully"}
+            
+            
+     @jwt_required()
+     def delete(self, id):
+         jwt = get_jwt()
+         if jwt['role']!= 'doctor':
+             return {"messgae":"Unauthorized request"}, 401
+         
+         appointment = Appointment.query.filter_by(id=id).first()
+         if appointment == None:
+             return {"message": "Appointment not found"}, 404
+         
+         db.session.delete(appointment)
+         db.session.commit()
+         return {"message": "Appointment deleted successfully"}, 200
+         
+            
+class DoctorResource(Resource):
+     # create a new instance of reqparse
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', required=True,
+                        help="Name is required")
+    parser.add_argument('email', required=True,
+                        help="Email Address is required")
+    parser.add_argument('phone_number', required=True,
+                        help="Phone number is required")
+    parser.add_argument('specialization', required=True,
+                        help="Specialization is required")
+    parser.add_argument('image', required=True,
+                        help="Image is required")
+    parser.add_argument('password', required=True,
+                        help="Password is required")
+
+    @jwt_required()
+    def get(self, id=None):
+        
+        jwt = get_jwt()
+        
+        if jwt['role']!= 'admin' or  jwt['role']!= 'doctor':
+            return {"messgae":"Unauthorized request"}, 401
+        
+        if id == None:
+            doctors = Doctor.query.all()
+            results = []
+            
+            for doctor in doctors:
+                results.append(doctor.to_dict())
+                
+            return results
+        else:
+            doctor = Doctor.query.filter_by(id=id).first()
+            if doctor == None:
+                return {"message": "Doctor not found"}, 404
+            
+            return doctor.to_dict()
+        
+    @jwt_required()
+    def patch(self,id):
+        jwt = get_jwt()
+        if jwt['role']!= 'admin':
+                return {"message":"Unauthorized request"}, 401
+            
+        data = self.parser.parse_args()
+        
+        data['password'] = generate_password_hash(
+            data['password']).decode('utf-8')
+        
+        doctor = Doctor.query.filter_by(id=id).first()
+        
+        if doctor == None:
+            return {"message": "Doctor not found"}, 404
+        
+        email = db.session.query(Doctor).first(
+            and_(Doctor.email == data['email'], not_(Doctor.id==id))).first()
+        if email:
+            return {"message": "Email already exists"}, 422
+        
+        phone = db.session.query(Doctor).first(
+            and_(Doctor.phone_number == data['phone_number'], not_(Doctor.id==id))).first()
+        
+        if phone:
+            return {"message": "Phone number already exists"}, 422
+        
+        for key in data.keys():
+            setattr(doctor, key, data[key])
+            
+            db.session.commit()
+            return {"message": "Doctor updated successfully"}
+        
+    @jwt_required()
+    def delete(self, id):
+        jwt = get_jwt()
+        if jwt['role'] != 'admin':
+            return {"message":"Unauthorized request"}, 401
+        
+        doctor = Doctor.query.filter_by(id=id).first()
+        if doctor == None:
+            return {"message": "Doctor not found", "status": "fail"}, 404
+        
+        db.session.delete(doctor)
+        db.session.commit()
+        return {"message": "Doctor deleted successfully"}
+        
+          
+class PatientResource(Resource):
+     # create a new instance of reqparse
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', required=True,
+                        help="Name is required")
+    parser.add_argument('age', required=True,
+                        help="Age is required")
+    parser.add_argument('gender', required=True,
+                        help="Gender is required")
+    parser.add_argument('phone_number', required=True,
+                        help="Phone number is required")
+    parser.add_argument('diagnosis', required=True,
+                        help="Diagnosis is required")
+    parser.add_argument('email', required=True,
+                        help="Email Address is required")
+    parser.add_argument('password', required=True, 
+                        help="Password is required")
+    @jwt_required()
+    def get(self, id=None):
+        
+        jwt = get_jwt()
+        if jwt['role'] != 'admin' or  jwt['role'] != 'doctor':
+            return {"messgae":"Unauthorized request"}, 401  
+         
+        if id == None:
+            patients = Patient.query.all()
+            results = []
+            
+            for patient in patients:
+                results.append(patient.to_dict())
+                
+            return results 
+        else:
+            patient = Patient.query.filter_by(id=id).first()
+            if patient == None:
+                return {"message": "Patient not found"}, 404
+            
+            return patient.to_dict()
+        
+    @jwt_required()    
+    def post(self):
+        jwt = get_jwt()
+        if jwt ['role'] != 'patient':
+            return {"message":"Unauthorized request"}, 401
+        
+        data= PatientResource.parser.parse_args()
+        
+        data['password'] = generate_password_hash(
+            data['password']).decode('utf-8')
+        
+        print (data)
+        # verify email and phone numbers are available
+        email= Patient.query.filter_by(email=data['email']).first()
+        if email:
+            return {"message": "Email already exists"}, 422
+        
+        phone= Patient.query.filter_by(phone_number=data['phone_number']).first()
+        if phone:
+            return {"message": "Phone number already exists"}, 422
+        
+        patient= Patient(**data)
+        db.session.add(patient)
+        db.session.commit()
+        
+        return {"message": "Patient created successfully"}
+    
+    @jwt_required()
+    def delete (self,id):
+        
+        jwt = get_jwt()
+        if jwt['role']!= 'admin' or  jwt['role']!= 'doctor':
+            return {"message":"Unauthorized request"}, 401
+        
+        patient = Patient.query.filter_by(id=id).first()
+        if patient == None:
+            return {"message": "Patient not found","status": "fail"}, 404
+        db.session.delete(patient)
+        db.session.commit()
+        return {"message": "Patient deleted successfully"}
+        
+
+# from flask_restful import Resource,reqparse
+# from models import db, Specialization
+# from flask import Flask, jsonify, request, make_response
+# from flask_jwt_extended import jwt_required, get_jwt
+# from sqlalchemy import and_, not_
+
+
+
+
+
+class SpecializationResource(Resource):
+    
+   # create a new instance of reqparse
+    parser = reqparse.RequestParser()
+    parser.add_argument('name', required = True,
+                        help = "Name is required")
+    
+    @jwt_required()
+    def get(self, id=None):
+        
+        jwt = get_jwt()
+        
+        if jwt['role'] != 'admin' or  jwt['role'] != 'doctor' or  jwt['role'] != 'patient':
+            return {"messgae":"Unauthorized request"}, 401
+        
+        if id ==None:
+            specializations = Specialization.query.all()
+            results = []
+        
+            for specialization in  specializations:
+                results.append(specialization.to_dict())
+                
+            return results
+    
+        else:
+            specialization = Specialization.query.filter_by(id=id).first()
+            
+            if specialization == None:
+                return {"message": "Specialization not found"}, 404
+            
+            return specialization.to_dict()
+        
+   
+    @jwt_required()
+    def post(self):
+        jwt = get_jwt()
+        if jwt['role'] != 'admin':
+            return {"message":"Unauthorized request"}, 401
+        
+
+        new_record = Specialization(
             name=request.form['name']
         )  
         db.session.add(new_record)
@@ -248,6 +386,10 @@ class DepartmentResource(Resource):
             response_dict,
             201)
         return response
-    
-    
-    
+
+
+
+
+
+
+        
