@@ -21,11 +21,20 @@ metadata = MetaData(naming_convention = convention)
 # initialize db instance with metadata and engine
 db = SQLAlchemy(metadata=metadata)
 
-class Department(db.Model, SerializerMixin):
+# many to many relationship
+doctor_specialization_association = db.Table(
+    'doctor_department_association',
+    db.Column('doctor_id', db.Integer, db.ForeignKey('doctors.id'), primary_key=True),
+    db.Column('specialization_id', db.Integer, db.ForeignKey('specializations.id'), primary_key=True)
+)
+
+class Specialization(db.Model, SerializerMixin):
     __tablename__ = "departments"
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String,nullable=False)
+    doctors = db.relationship('Doctor', secondary=doctor_specialization_association, back_populates='specializations')
+    
     
     def __repr__(self):
         return f"<Category {self.id}: {self.name}>"
@@ -43,7 +52,11 @@ class Patient(db.Model, SerializerMixin):
     email = db.Column(db.String, nullable=False, unique=True)
     diagnosis=db.Column(db.String,nullable=False)
     password = db.Column(db.String, nullable=False)
-    # appointment_id=db.Column(db.Integer, db.ForeignKey('appointments.id'))
+    appointment_id=db.Column(db.Integer, db.ForeignKey('appointments.id'))
+    doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
+    
+    doctor = db.relationship('Doctor', back_populates= 'patient')
+    appointments = db.relationship("Appointment",uselist= False, back_populates="patient")
     
     
     
@@ -75,12 +88,14 @@ class Doctor(db.Model, SerializerMixin):
     specialization = db.Column(db.String, nullable=False)
     password=db.Column(db.String, nullable=False)
     image=db.Column(db.String)
+    schedule=db.Column(db.String, nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"))
     
+    patients = db.relationship("Patient", back_populates="doctor")
+    appointments = db.relationship("Appointments", back_populates="doctor")
     
-    # patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"))
-    # patients = db.relationship("Patient", back_populates="doctor")
-    ''' departments = db.relationship("Department", secondary="doc_department",
-                                back_populates="doctors")'''
+    specializations = db.relationship("Specialization", secondary="doctor_specialization_association",
+                                  back_populates="doctors")
 
     def validate_email(self, key, email):
         # Simple regex for validating an Email
@@ -97,21 +112,17 @@ class Appointment(db.Model, SerializerMixin):
     __tablename__ = "appointments"
     id = db.Column(db.Integer, primary_key=True)
     reason = db.Column(db.String, nullable=False)
-    created_at = db.Column(db.DateTime, default=db.func.now())
+    date_time = db.Column(db.DateTime, nullable=False)
+    patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"))
+    doctor_id = db.Column(db.Integer, db.ForeignKey("doctor.id"))
     
-    # def to_dict(self):
-    #     return {"id": self.id,
-    #             "reason": self.reason, 
-    #             "timestamp": self.timestamp}
+    patient = db.relationship("Patient", back_populates="appointments")
+    doctor = db.relationship("Doctor", back_populates="appointment")
+    
 
-    # @validates("timestamp")
-    # def validate_timestamp(self, key, timestamp):
-    #     if not isinstance(timestamp, datetime):
-    #         raise ValueError("Timestamp must be a datetime object")
-    #     return timestamp
 
     def __repr__(self):
-        return f"<Appointment {self.id}:{self.reason},{self.created_at}>"
+        return f"<Appointment {self.id}:{self.reason},{self.date_time},{self.patient_id},{self.doctor_id}>"
 
 
 class Admin(db.Model, SerializerMixin):
@@ -132,14 +143,8 @@ class Admin(db.Model, SerializerMixin):
             raise ValueError("Invalid email address")
         return email
 
-    # @validates('phone')
-    # def validate_phone(self, key, phone):
-    #     if not validators.length(phone, min=10, max=15):
-    #         raise ValueError("Phone number must be between 10 and 15 characters")
-    #     return phone
+
     
-    def __repr__(self):
-        return f"<Appointment {self.id}:{self.name},{self.email},{self.phone_number},{self.password}>"
         
   
 

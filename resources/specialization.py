@@ -1,15 +1,15 @@
 
 from flask_restful import Resource,reqparse
-from models import db, Department
-from flask import Flask, jsonify, request, make_response
+from models import db, Specialization
+from flask import  request, make_response
 from flask_jwt_extended import jwt_required, get_jwt
-from sqlalchemy import and_, not_
 
 
 
 
 
-class DepartmentResource(Resource):
+
+class SpecializationResource(Resource):
     
    # create a new instance of reqparse
     parser = reqparse.RequestParser()
@@ -25,21 +25,21 @@ class DepartmentResource(Resource):
             return {"messgae":"Unauthorized request"}, 401
         
         if id ==None:
-            departments = Department.query.all()
+            specializations = Specialization.query.all()
             results = []
         
-            for department in  departments:
-                results.append(department.to_dict())
+            for specialization  in  specializations:
+                results.append(specialization.to_dict())
                 
             return results
     
         else:
-            department = Department.query.filter_by(id=id).first()
+            specialization = Specialization.query.filter_by(id=id).first()
             
-            if department == None:
-                return {"message": "Department not found"}, 404
+            if specialization == None:
+                return {"message": "Specialization not found"}, 404
             
-            return department.to_dict()
+            return specialization.to_dict()
         
    
     @jwt_required()
@@ -49,7 +49,7 @@ class DepartmentResource(Resource):
             return {"message":"Unauthorized request"}, 401
         
 
-        new_record = Department(
+        new_record = Specialization(
             name=request.form['name']
         )  
         db.session.add(new_record)
