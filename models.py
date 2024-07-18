@@ -84,7 +84,7 @@ class Doctor(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
-    phone_number = db.Column(db.String, nullable=False)
+    phone_number = db.Column(db.String)
     password=db.Column(db.String, nullable=False)
     image=db.Column(db.String)
     
@@ -140,7 +140,7 @@ class Admin(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
-    phone_number = db.Column(db.String, nullable=False)
+    phone_number = db.Column(db.String)
     password = db.Column(db.String)
     role = db.Column(db.String)
     
