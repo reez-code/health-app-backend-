@@ -122,11 +122,6 @@ class Appointment(db.Model, SerializerMixin):
     #             "reason": self.reason, 
     #             "timestamp": self.timestamp}
 
-    # @validates("timestamp")
-    # def validate_timestamp(self, key, timestamp):
-    #     if not isinstance(timestamp, datetime):
-    #         raise ValueError("Timestamp must be a datetime object")
-    #     return timestamp
     
     doctor = db.relationship("Doctor",back_populates="appointments")
     patient = db.relationship("Patient", back_populates="appointment")

@@ -1,4 +1,5 @@
 from resources import DoctorResource, AppointmentResource,AdminResource, SignupResource,SpecializationResource,PatientResource
+from auth import LoginResource,LogoutResource
 from flask import Flask, make_response
 from flask_migrate import Migrate
 from flask_restful import Api,Resource
@@ -7,7 +8,7 @@ import secrets
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 
-from auth import auth_bp  
+#from auth import auth_bp  
 import logging
 
 
@@ -61,10 +62,12 @@ api.add_resource(SignupResource, '/signup')
 #api lema
 api.add_resource(SpecializationResource, '/specializations_all')
 
+api.add_resource(LoginResource, '/login')
+api.add_resource(LogoutResource, '/logout')
 
 
 
-app.register_blueprint(auth_bp, url_prefix='/auth')
+#app.register_blueprint(auth_bp, url_prefix='/auth')
 
 
 
