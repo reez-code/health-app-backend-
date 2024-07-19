@@ -1,7 +1,7 @@
 from flask import jsonify, request
 from flask_restful import Resource, Api
 from flask_jwt_extended import (
-    create_access_token, create_refresh_token,
+    create_access_token, 
     jwt_required, get_jwt_identity
 )
 from flask_bcrypt import check_password_hash
@@ -27,10 +27,8 @@ class LoginResource(Resource):
         if user and check_password_hash(user.password, password):
             additional_claims = {"role": role}
             access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
-            refresh_token = create_refresh_token(identity=user.id)
             return {
                 "access_token": access_token,
-                "refresh_token": refresh_token,
                 "message": f"Logged in as {role}"
             }, 200
         else:

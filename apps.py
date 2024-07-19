@@ -1,3 +1,4 @@
+import os
 from resources import DoctorResource, AppointmentResource,AdminResource, SignupResource,SpecializationResource,PatientResource
 from auth import LoginResource,LogoutResource
 from flask import Flask, make_response
@@ -5,21 +6,25 @@ from flask_migrate import Migrate
 from flask_restful import Api,Resource
 from models import db
 import secrets
+from datetime import timedelta
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
+
 
 #from auth import auth_bp  
 import logging
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Set a secret key for session management
-app.config['SECRET_KEY'] = secrets.token_hex(16) # Change this to a random, unique string
+#app.config['SECRET_KEY'] = secrets.token_hex(16) # Change this to a random, unique string
 
-
+app.config['JWT_SECRET_KEY'] = "hospitalmanagement_secret"
+# Access tokens should be short lived, this is for this phase only
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
 
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -79,4 +84,4 @@ api.add_resource(LogoutResource, '/logout')
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=True, port=5555)
+    app.run(debug=True ,port=5555)

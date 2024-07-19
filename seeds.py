@@ -2,7 +2,7 @@ import random
 from random import choice as rc
 from models import db,Patient,Doctor,Appointment,Admin ,Specialization
 from faker import Faker
-from apps import app
+from apps import app,bcrypt
 
 
 with app.app_context():
@@ -206,7 +206,21 @@ with app.app_context():
                 password=fake.password(length=10),  # Use a strong password generator for production
                 phone_number=fake.phone_number()
             )
-            admins.append(admin)
+    admins.append(admin)
+    
+    # specific_password = bcrypt.generate_password_hash("janepassword123").decode('utf-8') 
+    # specific_admin = Admin(
+    # name="Jane Doe",
+    # email="jane.doe@example.com",
+    # password=specific_password,
+    # role="admin"
+    
+    #     )
+    # admins.append(specific_admin)
+
+    
+            
+            
     db.session.add_all(admins)
     db.session.commit()
         
