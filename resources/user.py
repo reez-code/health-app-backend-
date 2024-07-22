@@ -1,8 +1,8 @@
-from flask import jsonify, request
-from flask_restful import Resource, Api
+from flask import  request
+from flask_restful import Resource
 from flask_jwt_extended import (
     create_access_token, 
-    jwt_required, get_jwt_identity
+    jwt_required
 )
 from flask_bcrypt import check_password_hash, generate_password_hash
 from models import db, Doctor, Patient, Admin
