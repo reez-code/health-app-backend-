@@ -80,19 +80,19 @@ class AppointmentResource(Resource):
          db.session.commit()
          return {"message": "Appointment deleted successfully"}, 200
      
-class AppointmentIDResource(Resource):
-     def get (self, appointment_id):
-         appointment = Appointment.query.filter_by(id=appointment_id).first()
+# class AppointmentIDResource(Resource):
+#      def get (self, appointment_id):
+#          appointment = Appointment.query.filter_by(id=appointment_id).first()
          
-         if appointment is None:
-             return {"messgae": "Appointment not found"}, 404
+#          if appointment is None:
+#              return {"messgae": "Appointment not found"}, 404
          
-         patients =[]
+#          patients =[]
          
-         for patient in appointment.patients:
-             patients.append(patient.to_dict())
+#          for patient in appointment.patients:
+#              patients.append(patient.to_dict())
              
-             return patients
+#              return patients
          
          
             
