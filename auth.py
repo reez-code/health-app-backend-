@@ -1,43 +1,43 @@
+from flask import jsonify, request
+from flask_restful import Resource, Api
+from flask_jwt_extended import (
+    create_access_token, 
+    jwt_required, get_jwt_identity
+)
+from flask_bcrypt import check_password_hash
+from models import Doctor, Patient, Admin
 
-from flask import Blueprint, request, jsonify, session
-from modelss import  Doctor, Patient, Admin
-#from app import app
-from werkzeug.security import check_password_hash
+class LoginResource(Resource):
+    def post(self):
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        role = data.get('role').lower()
 
+        user = None
+        if role == 'patient':
+            user = Patient.query.filter_by(name=username).first()
+        elif role == 'doctor':
+            user = Doctor.query.filter_by(name=username).first()
+        elif role == 'admin':
+            user = Admin.query.filter_by(name=username).first()
+        else:
+            return {"message": "Invalid role"}, 400
 
-auth_bp = Blueprint('auth', __name__)
+        if user and check_password_hash(user.password, password):
+            additional_claims = {"role": role}
+            access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
+            return {
+                "access_token": access_token,
+                "message": f"Logged in as {role}"
+            }, 200
+        else:
+            return {"message": "Invalid username or password"}, 401
 
-
-@auth_bp.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    username = data.get('username')
-    password = data.get('password')
-    role = data.get('role').lower()
-
-    user = None
-    if role == 'patient':
-        user = Patient.query.filter_by(name=username).first()
-    elif role == 'doctor':
-        user = Doctor.query.filter_by(name=username).first()
-    elif role == 'admin':
-        user = Admin.query.filter_by(name=username).first()
-    else:
-        return jsonify({"message": "Invalid role"}), 400
-
-    if user and check_password_hash(user.password, password):
-        session['username'] = username
-        session['role'] = role
-        return jsonify({"message": f"Logged in as {role}"}), 200
-    else:
-        return jsonify({"message": "Invalid username or password"}), 401
-
-
-# Logout route
-@auth_bp.route('/logout', methods=['POST'])
-def logout():
-    session.pop('username', None)
-    session.pop('role', None)
-    return jsonify({"message": "Logged out successfully"}), 200
+class LogoutResource(Resource):
+    @jwt_required()
+    def post(self):
+        # JWT handles logout by removing the token from the client-side.
+        return {"message": "Logged out successfully"}, 200
 
 
