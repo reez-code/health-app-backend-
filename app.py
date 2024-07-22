@@ -24,7 +24,7 @@ app = Flask(__name__)
 # configure db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config["JWT_SECRET_KEY"] = "super-secret"
+
 
 app.config['JWT_SECRET_KEY'] = "hospitalmanagement_secret"
 # Access tokens should be short lived, this is for this phase only
