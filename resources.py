@@ -1,10 +1,11 @@
 from flask_restful import Resource, reqparse
 from models import db, Specialization
 from flask import Flask, jsonify, request, make_response
-from flask_jwt_extended import jwt_required, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from sqlalchemy import and_, not_
 from models import db,  Admin, Doctor, Appointment, Patient, Specialization
 from flask_bcrypt import generate_password_hash
+import logging
 
 
 class SignupResource(Resource):
@@ -90,32 +91,67 @@ class AdminResource(Resource):
 
 
 class AppointmentResource(Resource):
-    # create a new instance of reqparse
     parser = reqparse.RequestParser()
-    parser.add_argument('reason', required=True,
-                        help="Reason is required")
-    parser.add_argument('create_at', required=True,
-                        help="Timestamp is required in ISO 8601 format")
+    parser.add_argument('reason', required=True, help="Reason is required")
+    parser.add_argument('date_time', required=True, help="Timestamp is required in ISO 8601 format")
 
     @jwt_required()
     def get(self, id=None):
         jwt = get_jwt()
-        if jwt['role'] != 'doctor' or jwt['role'] != 'admin':
-            return {"messgae": "Unauthorized request"}, 401
+        user_id = get_jwt_identity()
 
-        if id == None:
-            appointments = Appointment.query.all()
-            results = []
+        if jwt['role'] == 'patient':
+            if id is None:
+                # Patients can only see their own appointments
+                appointments = Appointment.query.filter_by(patient_id=user_id).all()
+                results = [appointment.to_dict() for appointment in appointments]
+                return results, 200
+            else:
+                # Patients can only see their own appointment by ID
+                appointment = Appointment.query.filter_by(id=id, patient_id=user_id).first()
+                if appointment is None:
+                    return {"message": "Appointment not found or unauthorized"}, 404
+                return appointment.to_dict(), 200
 
-            for appointment in appointments:
-                results.append(appointment.to_dict())
+        elif jwt['role'] in ['doctor', 'admin']:
+            if id is None:
+                # Doctors and admins can see all appointments
+                appointments = Appointment.query.all()
+                results = [appointment.to_dict() for appointment in appointments]
+                return results, 200
+            else:
+                # Doctors and admins can see any appointment by ID
+                appointment = Appointment.query.filter_by(id=id).first()
+                if appointment is None:
+                    return {"message": "Appointment not found"}, 404
+                return appointment.to_dict(), 200
 
-            return results
         else:
-            appointment = Appointment.query.filter_by(id=id).first()
-            if appointment is None:
-                return {"messgae": "Appointment not found"}, 404
-            return appointment.to_dict()
+            return {"message": "Unauthorized request"}, 401
+    @jwt_required()
+    def post(self):
+        jwt = get_jwt()
+        user_id = get_jwt_identity()
+
+        if jwt['role'] != 'patient':
+            return {"message": "Unauthorized request"}, 401
+
+        args = self.parser.parse_args()
+        if Appointment.query.filter_by(patient_id=user_id).first():
+            return {"message": "Patient already has an appointment"}, 400
+
+        appointment = Appointment(
+            reason=args['reason'],
+            date_time=args['date_time'],
+            patient_id=user_id,
+            doctor_id=None  # Assuming you have logic to assign a doctor later
+        )
+
+        db.session.add(appointment)
+        db.session.commit()
+
+        return appointment.to_dict(), 201
+
 
     @jwt_required()
     def patch(self, id):

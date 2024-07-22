@@ -51,13 +51,14 @@ class Patient(db.Model, SerializerMixin):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String,nullable=False)
-    gender = db.Column(db.String,nullable=False)
-    age = db.Column(db.String,nullable=False)
+    gender = db.Column(db.String)
+    age = db.Column(db.String)
     doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
-    phone_number = db.Column(db.String, nullable=False, unique=True)
+    phone_number = db.Column(db.String, unique=True)
     email = db.Column(db.String, nullable=False, unique=True)
-    diagnosis=db.Column(db.String,nullable=False)
+    diagnosis=db.Column(db.String)
     password = db.Column(db.String, nullable=False)
+    role = db.Column(db.String)
    
     doctor = db.relationship("Doctor", back_populates="patients")
     appointment = db.relationship(
@@ -75,9 +76,20 @@ class Patient(db.Model, SerializerMixin):
         return email
     
     
-    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'gender': self.gender,
+            'age': self.age,
+            'doctor_id': self.doctor_id,
+            'phone_number': self.phone_number,
+            'email': self.email,
+            'diagnosis': self.diagnosis,
+            'role': self.role
+        }
     def __repr__(self):
-        return f"<Admin {self.name},{self.email}>"
+        return f"<Patient {self.name},{self.email}>"
     
 class Doctor(db.Model, SerializerMixin):
     __tablename__ = "doctors"
@@ -87,6 +99,7 @@ class Doctor(db.Model, SerializerMixin):
     phone_number = db.Column(db.String)
     password=db.Column(db.String, nullable=False)
     image=db.Column(db.String)
+    role = db.Column(db.String)
     
     
     patients = db.relationship("Patient", back_populates="doctor")
@@ -117,14 +130,10 @@ class Appointment(db.Model, SerializerMixin):
     date_time = db.Column(db.DateTime, nullable=False)
     #created_at = db.Column(db.DateTime, default=db.func.now())
     
-    # def to_dict(self):
-    #     return {"id": self.id,
-    #             "reason": self.reason, 
-    #             "timestamp": self.timestamp}
-
+   
     
     doctor = db.relationship("Doctor",back_populates="appointments")
-    patient = db.relationship("Patient", back_populates="appointment")
+    patient = db.relationship("Patient", back_populates="appointment", uselist=False)
 
     def __repr__(self):
         return f"<Appointment(id={self.id}, reason={self.reason}, date_time={self.date_time})>"

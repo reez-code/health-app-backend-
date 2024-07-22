@@ -12,7 +12,7 @@ from flask_jwt_extended import JWTManager
 
 
 #from auth import auth_bp  
-import logging
+
 
 
 app = Flask(__name__)
