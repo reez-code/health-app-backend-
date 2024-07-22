@@ -90,7 +90,9 @@ class DoctorResource(Resource):
                 return {"message": "Doctor not found", "status": "fail"}, 404
             
             db.session.delete(doctor)
+            
             db.session.commit()
+            
             return {"message": "Doctor deleted successfully"}
         else:
             return {"message":"Unauthorized request"}, 401
