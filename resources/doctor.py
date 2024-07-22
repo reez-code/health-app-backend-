@@ -91,17 +91,10 @@ class DoctorResource(Resource):
             
             db.session.delete(doctor)
             db.session.commit()
+
             return {"message": "Doctor deleted successfully"}
         else:
             return {"message":"Unauthorized request"}, 401
           
 
         
-
-
-
-
-
-
-
-
