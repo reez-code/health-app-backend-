@@ -12,9 +12,9 @@ with app.app_context():
     # so you can run the seed file multiple times without having duplicate entries in your database
     print("Deleting data...")
     Specialization.query.delete()
+    Appointment.query.delete()
     Patient.query.delete()
     Doctor.query.delete()
-    Appointment.query.delete()
     Admin.query.delete()
     
     
@@ -29,8 +29,8 @@ with app.app_context():
     "Forensic Pathology", "Pediatric Surgery", "Hepatology", "Reproductive Endocrinology",
     "Allergy and Immunology", "Clinical Genetics", "Pain Medicine", "Sleep Medicine",
     "Sports Medicine", "Vascular Medicine", "Infectious Disease Medicine", "Neurophysiology",
-    "Interventional Radiology", "Radiation Oncology", "Palliative Medicine", "Occupational Medicine"
-]
+    "Interventional Radiology", "Radiation Oncology", "Palliative Medicine", "Occupational Medicine"]
+
     
     print("Creating specialization...")
     
@@ -191,6 +191,7 @@ with app.app_context():
             appointment = Appointment(
                 reason=rc(appointment_reasons),
                 date_time=fake.date_time_this_year(before_now=True, after_now=False)
+                
             )
             appointments.append(appointment)
     db.session.add_all(appointments)

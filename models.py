@@ -118,7 +118,7 @@ class Appointment(db.Model, SerializerMixin):
     __tablename__ = "appointments"
     id = db.Column(db.Integer, primary_key=True)
     reason = db.Column(db.String, nullable=False)
-    date_time = db.Column(db.String, nullable=False)
+    date_time = db.Column(db.DateTime, nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"))
     doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
     
