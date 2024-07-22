@@ -1,6 +1,5 @@
 from flask_restful import Resource,reqparse
 from models import  Admin
-from flask_bcrypt import generate_password_hash
 from flask_jwt_extended import jwt_required, get_jwt
 
 
@@ -16,26 +15,24 @@ class AdminResource(Resource):
     @jwt_required()
     def get(self, id=None):
         jwt = get_jwt()
-        if jwt['role'] != 'admin':
-            return {"messgae":"Unauthorized request"}, 401  
-        
-
-        if id==None:
-            admins = Admin.query.all()
-            results = []
-            
-            for admin in admins:
-                results.append(admin.to_dict())
+        if jwt['role'] == 'admin':
+             
+            if id==None:
+                admins = Admin.query.all()
+                results = []
                 
-                return results
+                for admin in admins:
+                    results.append(admin.to_dict())
+                    
+                    return results
+            else:
+                admin =Admin.query.filter_by(id=id).first()
+                
+                if admin == None:
+                    return {"message": "Admin not found"}, 404
+                return admin.to_dict()
         else:
-            admin =Admin.query.filter_by(id=id).first()
+            return {"messgae":"Unauthorized request"}, 401
             
-            if admin == None:
-                return {"message": "Admin not found"}, 404
-            return admin.to_dict()
         
-    # def get(self):
-    #     admins = Admin.query.all()
-    #     admins_dict = [admin.to_dict() for admin in admins]
-    #     return jsonify(admins_dict)
+   

@@ -23,13 +23,13 @@ db = SQLAlchemy(metadata=metadata)
 
 # many to many relationship
 doctor_specialization_association = db.Table(
-    'doctor_department_association',
+    'doctor_specialization_association',
     db.Column('doctor_id', db.Integer, db.ForeignKey('doctors.id'), primary_key=True),
     db.Column('specialization_id', db.Integer, db.ForeignKey('specializations.id'), primary_key=True)
 )
 
 class Specialization(db.Model, SerializerMixin):
-    __tablename__ = "departments"
+    __tablename__ = "specializations"
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String,nullable=False)
@@ -45,26 +45,19 @@ class Patient(db.Model, SerializerMixin):
     __tablename__= "patients"
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String,nullable=False)
-    gender = db.Column(db.String,nullable=False)
-    age = db.Column(db.String,nullable=False)
-    phone_number = db.Column(db.String, nullable=False, unique=True)
+    name = db.Column(db.String)
+    gender = db.Column(db.String)
+    age = db.Column(db.String)
+    phone_number = db.Column(db.String, unique=True)
     email = db.Column(db.String, nullable=False, unique=True)
-    diagnosis=db.Column(db.String,nullable=False)
+    diagnosis=db.Column(db.String)
     password = db.Column(db.String, nullable=False)
-    appointment_id=db.Column(db.Integer, db.ForeignKey('appointments.id'))
+    # appointment_id=db.Column(db.Integer, db.ForeignKey('appointments.id'))
     doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
     
-    doctor = db.relationship('Doctor', back_populates= 'patient')
+    doctor = db.relationship('Doctor', back_populates= 'patients')
     appointments = db.relationship("Appointment",uselist= False, back_populates="patient")
-    
-    
-    
-    @validates("phone")
-    def validate_phone(self,key,phone):
-        if not validators.length(phone, min=10, max=15):
-            raise ValueError("Phone number must be between 10 and 15 characters")
-        return phone
+
         
         
     def validate_email(self, key, email):
@@ -84,15 +77,15 @@ class Doctor(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
-    phone_number = db.Column(db.String, nullable=False)
-    specialization = db.Column(db.String, nullable=False)
+    phone_number = db.Column(db.String)
     password=db.Column(db.String, nullable=False)
     image=db.Column(db.String)
-    schedule=db.Column(db.String, nullable=False)
-    patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"))
+   
+    # patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"))
+    # appointment_id = db.Column(db.Integer, db.ForeignKey("appointments.id"))
     
     patients = db.relationship("Patient", back_populates="doctor")
-    appointments = db.relationship("Appointments", back_populates="doctor")
+    appointments = db.relationship("Appointment", back_populates="doctor")
     
     specializations = db.relationship("Specialization", secondary="doctor_specialization_association",
                                   back_populates="doctors")
@@ -104,6 +97,7 @@ class Doctor(db.Model, SerializerMixin):
             raise ValueError("Invalid email address")
         return email
 
+
     def __repr__(self):
         return f"<{self.id}, {self.name}, {self.email}, {self.email}, {self.phone_number}, {self.specialization}, {self.password}, {self.image}>"
 
@@ -112,12 +106,12 @@ class Appointment(db.Model, SerializerMixin):
     __tablename__ = "appointments"
     id = db.Column(db.Integer, primary_key=True)
     reason = db.Column(db.String, nullable=False)
-    date_time = db.Column(db.DateTime, nullable=False)
+    date_time = db.Column(db.String, nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey("patients.id"))
-    doctor_id = db.Column(db.Integer, db.ForeignKey("doctor.id"))
+    doctor_id = db.Column(db.Integer, db.ForeignKey("doctors.id"))
     
     patient = db.relationship("Patient", back_populates="appointments")
-    doctor = db.relationship("Doctor", back_populates="appointment")
+    doctor = db.relationship("Doctor", back_populates="appointments")
     
 
 
@@ -130,7 +124,7 @@ class Admin(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
-    phone_number = db.Column(db.String, nullable=False)
+    phone_number = db.Column(db.String)
     password=db.Column(db.String)
     
 
@@ -142,29 +136,27 @@ class Admin(db.Model, SerializerMixin):
         if not re.match(regex, email):
             raise ValueError("Invalid email address")
         return email
-
-
     
-        
-  
+ 
+
 
 def __repr__(self):
-        return f"Admin(id={self.id}, name={self.name}, email={self.email})"
+        return f"Admin(id={self.id},{self.name},{self.email},{self.phone_number},{self.password})"
     
     
     
-class User(db.Model, SerializerMixin):
-    __tablename__ = "users"
+# class User(db.Model, SerializerMixin):
+#     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.Text, nullable=False)
-    email = db.Column(db.String, nullable=False, unique=True)
-    role = db.Column(db.Text)
-    password = db.Column(db.String)
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.Text, nullable=False)
+#     email = db.Column(db.String, nullable=False, unique=True)
+#     role = db.Column(db.Text)
+#     password = db.Column(db.String)
 
-    serialize_rules = ('-password',)
+#     serialize_rules = ('-password',)
 
-    def check_password(self, plain_password):
-        return check_password_hash(self.password, plain_password)
+#     def check_password(self, plain_password):
+#         return check_password_hash(self.password, plain_password)
     
     
