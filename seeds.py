@@ -256,7 +256,7 @@
   
 import random
 from random import choice as rc
-from models import db, Patient, Doctor, Appointment, Admin, Specialization
+from models import db,Patient,Doctor,Appointment,Admin ,Specialization
 from faker import Faker
 from apps import app, bcrypt
 
@@ -266,35 +266,35 @@ with app.app_context():
     # This will delete any existing rows
     # so you can run the seed file multiple times without having duplicate entries in your database
     print("Deleting data...")
-    Appointment.query.delete()
     Specialization.query.delete()
     Patient.query.delete()
     Doctor.query.delete()
     Admin.query.delete()
-
+    
+    
     doctor_specialisations = [
-        "Cardiology", "Orthopedic Surgery", "Neurology", "Oncology", "Pediatrics",
-        "Dermatology", "Gynecology", "Urology", "Ophthalmology", "Ear, Nose, and Throat (ENT)",
-        "Radiology", "Emergency Medicine", "Anesthesiology", "Psychiatry", "Physical Therapy",
-        "Internal Medicine", "General Surgery", "Pathology", "Gastroenterology", "Endocrinology",
-        "Hematology", "Pulmonology", "Rheumatology", "Infectious Disease", "Nephrology",
-        "Geriatrics", "Cardiothoracic Surgery", "Plastic Surgery", "Neurosurgery", "Oncologic Surgery",
-        "Hand Surgery", "Vascular Surgery", "Bariatric Surgery", "Oncologic Pathology",
-        "Forensic Pathology", "Pediatric Surgery", "Hepatology", "Reproductive Endocrinology",
-        "Allergy and Immunology", "Clinical Genetics", "Pain Medicine", "Sleep Medicine",
-        "Sports Medicine", "Vascular Medicine", "Infectious Disease Medicine", "Neurophysiology",
-        "Interventional Radiology", "Radiation Oncology", "Palliative Medicine", "Occupational Medicine"
-    ]
-
-    print("Creating specializations...")
-
-    specializations = []
+    "Cardiology", "Orthopedic Surgery", "Neurology", "Oncology", "Pediatrics",
+    "Dermatology", "Gynecology", "Urology", "Ophthalmology", "Ear, Nose, and Throat (ENT)",
+    "Radiology", "Emergency Medicine", "Anesthesiology", "Psychiatry", "Physical Therapy",
+    "Internal Medicine", "General Surgery", "Pathology", "Gastroenterology", "Endocrinology",
+    "Hematology", "Pulmonology", "Rheumatology", "Infectious Disease", "Nephrology",
+    "Geriatrics", "Cardiothoracic Surgery", "Plastic Surgery", "Neurosurgery", "Oncologic Surgery",
+    "Hand Surgery", "Vascular Surgery", "Bariatric Surgery", "Oncologic Pathology",
+    "Forensic Pathology", "Pediatric Surgery", "Hepatology", "Reproductive Endocrinology",
+    "Allergy and Immunology", "Clinical Genetics", "Pain Medicine", "Sleep Medicine",
+    "Sports Medicine", "Vascular Medicine", "Infectious Disease Medicine", "Neurophysiology",
+    "Interventional Radiology", "Radiation Oncology", "Palliative Medicine", "Occupational Medicine"
+]
+    
+    print("Creating specialization...")
+    
+    specializations=[]
     for i in range(20):
-        specialization = Specialization(
+        specialization=Specialization(
             name=random.choice(doctor_specialisations)
         )
         specializations.append(specialization)
-
+    
     disease_list = [
         "Common Cold",
         "Influenza (Flu)",
@@ -362,17 +362,7 @@ with app.app_context():
             password=fake.password()
         )
         patients.append(patient)
-
-    specific_password = bcrypt.generate_password_hash(
-        "adan123").decode('utf-8')
-    specific_patient = Patient(
-        name="adan",
-        password=specific_password,
-        role="patient",
-        email="adan@example.com"
-    )
-    patients.append(specific_patient)
-
+            
     db.session.add_all(specializations)
     db.session.add_all(patients)
     db.session.commit()
@@ -434,14 +424,14 @@ with app.app_context():
     print("Creating doctors...")
     doctors = []
     for i in range(15):
-        doctor = Doctor(
-            name=fake.name(),
-            email=fake.email(),
-            phone_number=fake.phone_number(),
-            password=fake.password(length=10),
-            image=rc(doctor_image)
-        )
-        doctors.append(doctor)
+            doctor = Doctor(
+                name=fake.name(),
+                email=fake.email(),
+                phone_number=fake.phone_number(),
+                password=fake.password(length=10),
+                image=rc(doctor_image)
+            )
+            doctors.append(doctor)
     db.session.add_all(doctors)
     db.session.commit()
 
@@ -457,25 +447,11 @@ with app.app_context():
     num_doctors = len(doctor_ids)
 
     for i in range(20):
-        patient_id = patient_ids[i % num_patients]
-        doctor_id = doctor_ids[i % num_doctors]
-
-        appointment = Appointment(
-            reason=rc(appointment_reasons),
-            date_time=fake.date_time_this_year(before_now=True, after_now=False),
-            patient_id=patient_id,
-            doctor_id=doctor_id
-        )
-        appointments.append(appointment)
-
-    specific_appointment = Appointment(
-        reason=rc(appointment_reasons),
-        date_time=fake.date_time_this_year(before_now=True, after_now=False),
-        patient_id=525,  # Ensure this ID exists in your patients table
-        doctor_id=rc(doctor_ids)  # Assign a doctor ID if available
-    )
-    appointments.append(specific_appointment)
-
+            appointment = Appointment(
+                reason=rc(appointment_reasons),
+                date_time=fake.date_time_this_year(before_now=True, after_now=False)
+            )
+            appointments.append(appointment)
     db.session.add_all(appointments)
     db.session.commit()
 

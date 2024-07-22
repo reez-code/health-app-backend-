@@ -79,7 +79,7 @@ class AppointmentResource(Resource):
          db.session.delete(appointment)
          db.session.commit()
          return {"message": "Appointment deleted successfully"}, 200
-     
+
 class AppointmentIDResource(Resource):
      def get (self, appointment_id):
          appointment = Appointment.query.filter_by(id=appointment_id).first()
@@ -93,6 +93,7 @@ class AppointmentIDResource(Resource):
              patients.append(patient.to_dict())
              
              return patients
+
          
          
             
