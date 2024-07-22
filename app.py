@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 from datetime import timedelta  
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
@@ -21,9 +22,9 @@ from resources.user import  SignupResource, LoginResource, LogoutResource
 
 app = Flask(__name__)
 # configure db connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config["JWT_SECRET_KEY"] = "super-secret"
+
 
 app.config['JWT_SECRET_KEY'] = "hospitalmanagement_secret"
 # Access tokens should be short lived, this is for this phase only
