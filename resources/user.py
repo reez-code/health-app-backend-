@@ -5,14 +5,14 @@ from flask_jwt_extended import (
     jwt_required
 )
 from flask_bcrypt import Bcrypt, check_password_hash, generate_password_hash
-from models import db, Doctor, Patient, Admin, Specialization
+from models import db, Doctor, Patient, Admin, Specialization, doctor_specialization_association
 
 bcrypt = Bcrypt()
 
 class SignupResource(Resource):
     def post(self):
         data = request.get_json()
-        required_fields = ['email', 'password', 'username', 'role']
+        required_fields = ['email', 'password', 'name', 'role']
         missing_fields = [
             field for field in required_fields if field not in data]
         if missing_fields:
@@ -31,7 +31,7 @@ class SignupResource(Resource):
 
             if role == 'patient':
                 new_user = Patient(
-                    name=data['username'],
+                    name=data['name'],
                     email=data['email'],
                     age = data['age'],
                     gender= data['gender'],
@@ -43,14 +43,14 @@ class SignupResource(Resource):
                 if not specialization:
                      return {"error": "Specialization not found"}, 404
                 new_user = Doctor(
-                    name=data['username'],
+                    name=data['name'],
                     email=data['email'],
                     phone_number = data['phone_number'],
-                    specialization_id = data['specialization_id'],
                     image = data['image'],
                     password=hashed_password,
-                    specialization=specialization
                 )
+                specialization_table =  Specialization.query.get(data['specialization_id'])
+                new_user.specializations.append(specialization_table)
             elif role == 'admin':
                 new_user = Admin(
                     name=data['username'],
