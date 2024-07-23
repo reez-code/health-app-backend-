@@ -7,6 +7,7 @@ from flask import Flask,make_response
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 load_dotenv() 
 
@@ -27,6 +28,8 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Add CORS middleware
+CORS(app, resources={r"/*": {"origins": "*", "allow_headers": "Content-Type, Accept, Authorization"}})
 
 app.config['JWT_SECRET_KEY'] = "hospitalmanagement_secret"
 # Access tokens should be short lived, this is for this phase only
@@ -45,6 +48,7 @@ bcrypt = Bcrypt(app)
 
 # setup jwt
 jwt = JWTManager(app)
+
 
 
 
