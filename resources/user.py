@@ -4,8 +4,8 @@
 #     create_access_token, 
 #     jwt_required
 # )
-from flask_bcrypt import check_password_hash, generate_password_hash
-from models import db, Doctor, Patient, Admin
+# from flask_bcrypt import check_password_hash, generate_password_hash
+# from models import db, Doctor, Patient, Admin
 
 # class SignupResource(Resource):
 #     def post(self):
@@ -25,7 +25,7 @@ from models import db, Doctor, Patient, Admin
 #             return {"error": "Email already exists."}, 400
 
 #         try:
-#             hashed_password = generate_password_hash(data['password']).decode('utf-8')
+#             hashed_password = generate_password_hash(data['password'], salt_rounds=12).decode('utf-8')
 
 #             if role == 'patient':
 #                 new_user = Patient(
@@ -93,8 +93,12 @@ from models import db, Doctor, Patient, Admin
 
 from flask import request
 from flask_restful import Resource
-from flask_jwt_extended import create_access_token, jwt_required
-from flask_bcrypt import Bcrypt
+from flask_jwt_extended import (
+    create_access_token,
+    jwt_required
+)
+from flask_bcrypt import Bcrypt, check_password_hash, generate_password_hash
+from models import db, Doctor, Patient, Admin
 
 bcrypt = Bcrypt()
 
@@ -102,7 +106,8 @@ class SignupResource(Resource):
     def post(self):
         data = request.get_json()
         required_fields = ['email', 'password', 'username', 'role']
-        missing_fields = [field for field in required_fields if field not in data]
+        missing_fields = [
+            field for field in required_fields if field not in data]
         if missing_fields:
             return {"error": f"Missing required fields: {', '.join(missing_fields)}"}, 400
 
@@ -146,7 +151,6 @@ class SignupResource(Resource):
             db.session.rollback()
             return {"error": str(e)}, 500
 
-
 class LoginResource(Resource):
     def post(self):
         data = request.json
@@ -173,7 +177,6 @@ class LoginResource(Resource):
             }, 200
         else:
             return {"message": "Invalid email or password"}, 401
-
 
 class LogoutResource(Resource):
     @jwt_required()
