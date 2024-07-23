@@ -22,7 +22,7 @@ from resources.user import  SignupResource, LoginResource, LogoutResource
 
 app = Flask(__name__)
 # configure db connection
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 
@@ -74,4 +74,4 @@ api.add_resource(LoginResource, '/login')
 api.add_resource(LogoutResource, '/logout')
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run( debug=True)
