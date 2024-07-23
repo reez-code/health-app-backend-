@@ -25,7 +25,7 @@ from resources.user import  SignupResource, LoginResource, LogoutResource
 
 
 
-sys.setrecursionlimit(2000)
+sys.setrecursionlimit(10000)
 app = Flask(__name__)
 # configure db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI")
