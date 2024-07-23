@@ -91,7 +91,7 @@ class AppointmentResource(Resource):
         data = self.parser.parse_args()
 
         # Check if an appointment with the same timestamp already exists
-        existing_appointment = Appointment.query.filter_by(create_at=data['create_at']).first()
+        existing_appointment = Appointment.query.filter_by(date_time=data['date_time']).first()
         if existing_appointment:
             return {"message": "An appointment already exists for this timestamp"}, 422
 
