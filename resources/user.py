@@ -43,7 +43,7 @@ class SignupResource(Resource):
                     name=data['username'],
                     email=data['email'],
                     phone_number = data['phone_number'],
-                    specialization = data['specialization'],
+                    specialization_id = data['specialization_id'],
                     image = data['image'],
                     password=hashed_password
                 )
