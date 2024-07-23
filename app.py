@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import os
+import sys
+
+
 from datetime import timedelta  
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
@@ -22,7 +25,7 @@ from resources.user import  SignupResource, LoginResource, LogoutResource
 
 
 
-
+sys.setrecursionlimit(2000)
 app = Flask(__name__)
 # configure db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI")

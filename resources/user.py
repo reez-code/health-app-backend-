@@ -5,7 +5,7 @@ from flask_jwt_extended import (
     jwt_required
 )
 from flask_bcrypt import Bcrypt, check_password_hash, generate_password_hash
-from models import db, Doctor, Patient, Admin, Specialization, doctor_specialization_association
+from models import db, Doctor, Patient, Admin, Specialization
 
 bcrypt = Bcrypt()
 
