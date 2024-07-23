@@ -29,7 +29,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Add CORS middleware
-CORS(app, resources={r"/*": {"origins": "*", "allow_headers": "Content-Type, Accept, Authorization"}})
+CORS(app)
 
 app.config['JWT_SECRET_KEY'] = "hospitalmanagement_secret"
 # Access tokens should be short lived, this is for this phase only
