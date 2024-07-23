@@ -6,7 +6,9 @@ from flask_restful import Api, Resource
 from flask import Flask,make_response
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
+from dotenv import load_dotenv
 
+load_dotenv() 
 
 
 from models import db

@@ -41,7 +41,7 @@ class SpecializationResource(Resource):
                 
                 return specialization.to_dict()
         else:
-            return {"messgae":"Unauthorized request"}, 401
+            return {"message":"Unauthorized request"}, 401
    
     @jwt_required()
     def post(self):
