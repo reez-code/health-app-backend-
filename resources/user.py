@@ -33,12 +33,18 @@ class SignupResource(Resource):
                 new_user = Patient(
                     name=data['username'],
                     email=data['email'],
+                    age = data['age'],
+                    gender= data['gender'],
+                    phone_number = data['phone_number'],
                     password=hashed_password
                 )
             elif role == 'doctor':
                 new_user = Doctor(
                     name=data['username'],
                     email=data['email'],
+                    phone_number = data['phone_number'],
+                    specialization = data['specialization'],
+                    image = data['image'],
                     password=hashed_password
                 )
             elif role == 'admin':
