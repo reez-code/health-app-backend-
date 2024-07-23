@@ -25,7 +25,7 @@ class SignupResource(Resource):
             return {"error": "Email already exists."}, 400
 
         try:
-            hashed_password = generate_password_hash(data['password'])
+            hashed_password = generate_password_hash(data['password']).decode('utf-8')
 
             if role == 'patient':
                 new_user = Patient(
@@ -54,7 +54,7 @@ class SignupResource(Resource):
 
         except Exception as e:
             db.session.rollback()
-            return {"error": str(e)}, 50
+            return {"error": str(e)}, 500
 
 
 
