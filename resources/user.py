@@ -5,7 +5,7 @@ from flask_jwt_extended import (
     jwt_required
 )
 from flask_bcrypt import Bcrypt, check_password_hash, generate_password_hash
-from models import db, Doctor, Patient, Admin
+from models import db, Doctor, Patient, Admin, Specialization
 
 bcrypt = Bcrypt()
 
@@ -39,13 +39,17 @@ class SignupResource(Resource):
                     password=hashed_password
                 )
             elif role == 'doctor':
+                specialization = Specialization.query.get(data['specialization_id'])
+                if not specialization:
+                     return {"error": "Specialization not found"}, 404
                 new_user = Doctor(
                     name=data['username'],
                     email=data['email'],
                     phone_number = data['phone_number'],
                     specialization_id = data['specialization_id'],
                     image = data['image'],
-                    password=hashed_password
+                    password=hashed_password,
+                    specialization=specialization
                 )
             elif role == 'admin':
                 new_user = Admin(
