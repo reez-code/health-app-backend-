@@ -20,7 +20,7 @@ class DoctorResource(Resource):
                         help="Image is required")
     parser.add_argument('password', required=True,
                         help="Password is required")
-
+    
     @jwt_required()
     def get(self, id=None):
         
@@ -95,6 +95,47 @@ class DoctorResource(Resource):
             return {"message": "Doctor deleted successfully"}
         else:
             return {"message":"Unauthorized request"}, 401
+    
+    @jwt_required()
+    def post(self):
+        # Check if the user making the request is an admin
+        jwt = get_jwt()
+        if jwt['role'] != 'admin':
+            return {"message": "Unauthorized request"}, 401
+
+        # Parse the request data
+        data = self.parser.parse_args()
+
+        # Check if a doctor with the same email or phone number already exists
+        email_exists = Doctor.query.filter_by(email=data['email']).first()
+        if email_exists:
+            return {"message": "Email already exists"}, 422
+
+        phone_exists = Doctor.query.filter_by(phone_number=data['phone_number']).first()
+        if phone_exists:
+            return {"message": "Phone number already exists"}, 422
+
+        # Hash the password
+        hashed_password = generate_password_hash(data['password']).decode('utf-8')
+
+        # Create a new Doctor instance
+        new_doctor = Doctor(
+            name=data['name'],
+            email=data['email'],
+            phone_number=data['phone_number'],
+            specialization=data['specialization'],
+            image=data['image'],
+            password=hashed_password
+        )
+
+        # Add the new doctor to the database
+        try:
+            db.session.add(new_doctor)
+            db.session.commit()
+            return {"message": "Doctor created successfully"}, 201
+        except Exception as e:
+            db.session.rollback()
+            return {"error": str(e)}, 500
           
 
         
