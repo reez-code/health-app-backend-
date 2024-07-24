@@ -53,7 +53,7 @@ class SignupResource(Resource):
                 new_user.specializations.append(specialization_table)
             elif role == 'admin':
                 new_user = Admin(
-                    name=data['username'],
+                    name=data['name'],
                     email=data['email'],
                     password=hashed_password
                 )

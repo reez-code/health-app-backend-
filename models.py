@@ -82,8 +82,7 @@ class Patient(db.Model, SerializerMixin):
             'doctor_id': self.doctor_id,
             'phone_number': self.phone_number,
             'email': self.email,
-            'diagnosis': self.diagnosis,
-            'role': self.role
+            'diagnosis': self.diagnosis
         }
     def __repr__(self):
         return f"<Patient {self.name},{self.email}>"
