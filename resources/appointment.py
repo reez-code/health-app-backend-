@@ -63,7 +63,7 @@ class AppointmentResource(Resource):
                     db.session.commit()
                     return {"message": "Appointment updated successfully"}
             else:
-                return {"messgae":"Unauthorized request"}, 401
+                return {"message":"Unauthorized request"}, 401
             
             
      @jwt_required()
