@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 import os
+import sys
+
+
 from datetime import timedelta  
 from flask_migrate import Migrate
 from flask_restful import Api, Resource
 from flask import Flask,make_response
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
+from dotenv import load_dotenv
+from flask_cors import CORS
 
+load_dotenv() 
 
 
 from models import db
@@ -19,12 +25,14 @@ from resources.user import  SignupResource, LoginResource, LogoutResource
 
 
 
-
+sys.setrecursionlimit(10000)
 app = Flask(__name__)
 # configure db connection
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Add CORS middleware
+CORS(app)
 
 app.config['JWT_SECRET_KEY'] = "hospitalmanagement_secret"
 # Access tokens should be short lived, this is for this phase only
@@ -43,6 +51,7 @@ bcrypt = Bcrypt(app)
 
 # setup jwt
 jwt = JWTManager(app)
+
 
 
 

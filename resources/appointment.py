@@ -79,6 +79,39 @@ class AppointmentResource(Resource):
          db.session.delete(appointment)
          db.session.commit()
          return {"message": "Appointment deleted successfully"}, 200
+     
+     @jwt_required()
+     def post(self):
+        jwt = get_jwt()
+        # Only allow doctors and admins to create appointments
+        if jwt['role'] != 'doctor' and jwt['role'] != 'admin' and jwt['role'] != 'patient':
+            return {"message": "Unauthorized request"}, 401
+
+        # Parse the request data
+        data = self.parser.parse_args()
+
+        # Check if an appointment with the same timestamp already exists
+        existing_appointment = Appointment.query.filter_by(date_time=data['date_time']).first()
+        if existing_appointment:
+            return {"message": "An appointment already exists for this timestamp"}, 422
+
+        # Create a new Appointment instance
+        new_appointment = Appointment(
+            reason=data['reason'],
+            date_time=data['date_time'],
+            patient_id=data['patient_id'],
+            doctor_id=data['doctor_id']
+        )
+
+        # Add the new appointment to the database
+        try:
+            db.session.add(new_appointment)
+            db.session.commit()
+            return {"message": "Appointment created successfully"}, 201
+        except Exception as e:
+            db.session.rollback()
+            return {"error": str(e)}, 500
+
 
 class AppointmentIDResource(Resource):
      def get (self, appointment_id):

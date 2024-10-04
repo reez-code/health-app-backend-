@@ -7,6 +7,7 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import validates
 from flask_bcrypt import check_password_hash
 import re
+
 convention = {
     "ix": 'ix_%(column_0_label)s',
     "uq": "uq_%(table_name)s_%(column_0_name)s",
@@ -34,6 +35,8 @@ class Specialization(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String,nullable=False)
     doctors = db.relationship('Doctor', secondary=doctor_specialization_association, back_populates='specializations')
+
+    serialize_rules = ('-doctors.specializations',)
     
     
     def __repr__(self):
@@ -57,6 +60,8 @@ class Patient(db.Model, SerializerMixin):
     
     doctor = db.relationship('Doctor', back_populates= 'patients')
     appointments = db.relationship("Appointment",uselist= False, back_populates="patient")
+    
+    serialize_rules = ('-password', '-doctor.patients', '-appointments.patient',)
 
         
         
@@ -77,8 +82,7 @@ class Patient(db.Model, SerializerMixin):
             'doctor_id': self.doctor_id,
             'phone_number': self.phone_number,
             'email': self.email,
-            'diagnosis': self.diagnosis,
-            'role': self.role
+            'diagnosis': self.diagnosis
         }
     def __repr__(self):
         return f"<Patient {self.name},{self.email}>"
@@ -100,6 +104,7 @@ class Doctor(db.Model, SerializerMixin):
     
     specializations = db.relationship("Specialization", secondary="doctor_specialization_association",
                                   back_populates="doctors")
+    serialize_rules = ('-password', '-patients.doctor', '-appointments.doctor', '-specializations.doctors',)
 
     def validate_email(self, key, email):
         # Simple regex for validating an Email
@@ -124,7 +129,7 @@ class Appointment(db.Model, SerializerMixin):
     patient = db.relationship("Patient", back_populates="appointments")
     doctor = db.relationship("Doctor", back_populates="appointments")
     
-
+    serialize_rules = ('-patient.appointments', '-doctor.appointments',)
 
     def __repr__(self):
         return f"<Appointment {self.id}:{self.reason},{self.date_time},{self.patient_id},{self.doctor_id}>"
@@ -139,7 +144,7 @@ class Admin(db.Model, SerializerMixin):
     password=db.Column(db.String)
     
 
-
+    serialize_rules = ('-password',)
 
     def validate_email(self, key, email):
         # Simple regex for validating an Email

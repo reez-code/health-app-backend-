@@ -1,16 +1,18 @@
-from flask import  request
+from flask import request
 from flask_restful import Resource
 from flask_jwt_extended import (
-    create_access_token, 
+    create_access_token,
     jwt_required
 )
-from flask_bcrypt import check_password_hash, generate_password_hash
-from models import db, Doctor, Patient, Admin
+from flask_bcrypt import Bcrypt, check_password_hash, generate_password_hash
+from models import db, Doctor, Patient, Admin, Specialization
+
+bcrypt = Bcrypt()
 
 class SignupResource(Resource):
     def post(self):
         data = request.get_json()
-        required_fields = ['email', 'password', 'username', 'role']
+        required_fields = ['email', 'password', 'name', 'role']
         missing_fields = [
             field for field in required_fields if field not in data]
         if missing_fields:
@@ -25,23 +27,33 @@ class SignupResource(Resource):
             return {"error": "Email already exists."}, 400
 
         try:
-            hashed_password = generate_password_hash(data['password'])
+            hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
 
             if role == 'patient':
                 new_user = Patient(
-                    name=data['username'],
+                    name=data['name'],
                     email=data['email'],
+                    age = data['age'],
+                    gender= data['gender'],
+                    phone_number = data['phone_number'],
                     password=hashed_password
                 )
             elif role == 'doctor':
+                specialization = Specialization.query.get(data['specialization_id'])
+                if not specialization:
+                     return {"error": "Specialization not found"}, 404
                 new_user = Doctor(
-                    name=data['username'],
+                    name=data['name'],
                     email=data['email'],
-                    password=hashed_password
+                    phone_number = data['phone_number'],
+                    image = data['image'],
+                    password=hashed_password,
                 )
+                specialization_table =  Specialization.query.get(data['specialization_id'])
+                new_user.specializations.append(specialization_table)
             elif role == 'admin':
                 new_user = Admin(
-                    name=data['username'],
+                    name=data['name'],
                     email=data['email'],
                     password=hashed_password
                 )
@@ -54,9 +66,7 @@ class SignupResource(Resource):
 
         except Exception as e:
             db.session.rollback()
-            return {"error": str(e)}, 50
-
-
+            return {"error": str(e)}, 500
 
 class LoginResource(Resource):
     def post(self):
@@ -75,7 +85,7 @@ class LoginResource(Resource):
         else:
             return {"message": "Invalid role"}, 400
 
-        if user and check_password_hash(user.password, password):
+        if user and bcrypt.check_password_hash(user.password, password):
             additional_claims = {"role": role}
             access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
             return {

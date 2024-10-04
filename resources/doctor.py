@@ -20,7 +20,7 @@ class DoctorResource(Resource):
                         help="Image is required")
     parser.add_argument('password', required=True,
                         help="Password is required")
-
+    
     @jwt_required()
     def get(self, id=None):
         
@@ -95,6 +95,7 @@ class DoctorResource(Resource):
             return {"message": "Doctor deleted successfully"}
         else:
             return {"message":"Unauthorized request"}, 401
-          
+    
+ 
 
         
